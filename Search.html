@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details</title>
+    <link rel="icon" type="image/x-icon" href="inter net icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --p-blue: #0f172a;
+            --accent: #0ea5e9;
+            --glow: rgba(14, 165, 233, 0.4);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass-header: rgba(10, 5, 80, 0.9);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #1a237e; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: var(--text-main);
+        }
+
+        header {
+            background: var(--glass-header);
+            backdrop-filter: blur(15px);
+            height: 80px;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .brand { display: flex; align-items: center; gap: 12px; }
+
+        .premium-logo {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--accent), #2563eb);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px var(--glow);
+        }
+
+        .brand-text {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, #7dd3fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        nav { 
+            display: flex; 
+            gap: 5px; 
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px;
+            border-radius: 14px;
+        }
+
+        .nav-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover {
+            background: white;
+            color: #e607c8;
+            box-shadow: 0 0 15px red;
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active {
+            .nav-link.active {
+    /* Premium Gradient Blue */
+    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); 
+    color: white !important;
+    font-weight: 700;
+    /* Soft Neon Glow */
+    box-shadow: 0 4px 15px rgba(58, 123, 213, 0.4); 
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+        }
+
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #c46812;
+            z-index: 1;
+        }
+
+        .header-right { display: flex; align-items: center; gap: 20px; }
+        /* Container ko thoda clean aur spaced banayein */
+.clock-container {
+    text-align: right;
+    padding-right: 25px;
+    border-right: 2px solid rgba(14, 165, 233, 0.2); /* Soft Border */
+    margin-right: 10px;
+}
+
+/* Clock styling - Bold aur Glowing */
+#clock {
+    background: linear-gradient(to bottom, #fff 0%, #cbd5e1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: 'Courier New', monospace; /* Digital look ke liye */
+    font-size: 26px;
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));
+}
+
+/* Date styling - Subtle aur Elegant */
+#date {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #0ea5e9; /* Sky Blue accent */
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-top: 2px;
+    display: block;
+    opacity: 0.9;
+}
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            padding: 2px;
+            background: #fff;
+        }
+
+        .main-view {
+            flex-grow: 1;
+            padding: 15px;
+            background: radial-gradient(circle at center, #1a237e 0%, #0d1117 100%);
+        }
+
+        .app-canvas {
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+
+        .marquee-footer {
+            background: #0f172a;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            font-size: 12px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .badge {
+            background: #ef4444;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-weight: 800;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <div class="premium-logo">
+    <img src="Studio_Photo_31.8KB.png" 
+         alt="Logo" 
+         style="width: 100%; height: 100%; object-fit: contain; border-radius: 10px;">
+</div>
+            <span class="brand-text">DIGITAL SAATH</span>
+        </div>
+
+        <nav id="top-nav">
+            <a href="#" class="nav-link active" onclick="setActive(this)"><i class="fa-solid fa-house"></i> Dashboard</a>
+            <a href="#" class="nav-link" onclick="setActive(this)"><i class="fa-solid fa-users"></i> Users</a>
+            <a href="#" class="nav-link" onclick="setActive(this)"><i class="fa-solid fa-gears"></i> Services</a>
+            <a href="#" class="nav-link" onclick="setActive(this)"><i class="fa-solid fa-search"></i> Search</a>
+        </nav>
+
+        <div class="header-right">
+            <div class="clock-container">
+                <span id="clock">00:00:00 AM</span>
+                <span id="date">-- -- ----</span>
+            </div>
+            <img src="Studio_Photo_113.0KB.png" class="avatar" alt="Admin">
+        </div>
+    </header>
+
+    <main class="main-view">
+        <div class="app-canvas">
+            <div class="loader" id="main-loader">
+                <i class="fa-solid fa-circle-notch fa-spin fa-3x"></i>
+            </div>
+
+            <iframe 
+                src="https://script.google.com/macros/s/AKfycbxXUGBrg7Z_sIMNQh5-wVT1RMKRmvUpLthOYQPRwdApH1_27q2egBOunm8bIIHkgrPn/exec"
+                onload="hideLoader()">
+            </iframe>
+        </div>
+    </main>
+
+    <footer class="marquee-footer">
+        <span class="badge">LIVE</span>
+        <marquee scrollamount="5">🚀 System Optimization Complete | 🛡️ Secure Encrypted Tunnel Active | 📞 Support 24/7 Available</marquee>
+    </footer>
+
+    <script>
+        // Loader ko chhupane ka function
+        function hideLoader() {
+            document.getElementById('main-loader').style.display = 'none';
+        }
+
+        function updateDisplay() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
+            });
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
+        }
+        setInterval(updateDisplay, 1000);
+        updateDisplay();
+
+        function setActive(element) {
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            element.classList.add('active');
+        }
+    </script>
+</body>
+</html>
