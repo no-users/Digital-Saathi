@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APNA STUDIO PRO | MASTER v5.6 ULTIMATE</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1e3a8a; --purple: #7c3aed; --pink: #db2777;
+            --dark: #0f172a; --sidebar: #ffffff; --accent: #38bdf8; --success: #059669; --danger: #ef4444;
+        }
+
+        body { margin: 0; font-family: 'Inter', sans-serif; background: #cbd5e1; overflow: hidden; color: #1e293b; }
+
+        .header {
+            background: var(--primary); color: white; padding: 12px 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 3px solid var(--pink); z-index: 1000; position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .logo { font-weight: 800; font-size: 20px; text-transform: uppercase; }
+        .logo span { background: var(--pink); padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+
+        .main-layout { display: flex; height: calc(100vh - 55px); }
+
+        .sidebar {
+            width: 360px; background: var(--sidebar); border-right: 1px solid #e2e8f0;
+            overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px;
+        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--pink); border-radius: 10px; }
+
+        .section-box { background: #f8fafc; border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; }
+        .section-title { font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 10px; text-transform: uppercase; border-bottom: 1px solid #eee; padding-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn { border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; background: #e2e8f0; transition: 0.2s; }
+        .btn-main { background: var(--primary); color: white; width: 100%; padding: 12px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; margin-top: 5px; font-size: 13px; }
+        
+        .slider-group { margin-top: 8px; }
+        .slider-group label { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: #475569; margin-bottom: 4px; }
+        input[type="range"] { width: 100%; accent-color: var(--pink); cursor: pointer; height: 5px; }
+
+        .color-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid #ddd; }
+
+        .workspace { flex: 1; display: flex; flex-direction: column; padding: 25px; position: relative; }
+        .editor-view {
+            flex: 1; display: flex; justify-content: center; align-items: center;
+            background: #e2e8f0 radial-gradient(#94a3b8 1px, transparent 1px) 20px 20px;
+            border-radius: 20px; overflow: hidden;
+        }
+        #editor-container { position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.2); background: white; line-height: 0; display: inline-block; }
+        #mainImage { max-width: 100%; max-height: 70vh; }
+
+        .sig-overlay { position: absolute; cursor: move; z-index: 100; mix-blend-mode: multiply; user-select: none; border: 1px dashed transparent; touch-action: none; }
+
+        #printModal, #drawModal { 
+            position: fixed; inset: 0; 
+            background: rgba(15, 23, 42, 0.96); 
+            z-index: 2000; display: none; flex-direction: column; 
+            backdrop-filter: blur(15px);
+        }
+        .preview-header { 
+            background: #1e293b; padding: 15px 30px; 
+            display: flex; justify-content: space-between; align-items: center; color: white;
+        }
+        #previewArea { flex: 1; overflow-y: auto; padding: 40px; display: flex; justify-content: center; align-items: flex-start; }
+        #previewCanvas { background: white; box-shadow: 0 20px 100px rgba(0,0,0,0.8); cursor: crosshair; }
+
+        .footer-bar { background: var(--dark); color: white; padding: 10px; font-size: 11px; display: flex; justify-content: space-between; }
+        #loaderOverlay { display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.9); z-index:9999; flex-direction:column; justify-content:center; align-items:center; color:white; }
+
+        @media print {
+            body * { display: none !important; }
+            #printModal, #previewArea, #previewCanvas { display: block !important; visibility: visible !important; }
+            #printModal { position: absolute; left: 0; top: 0; width: 100%; background: white !important; }
+            #previewArea { padding: 0 !important; margin: 0 !important; background: white !important; }
+            #previewCanvas { box-shadow: none !important; width: 100% !important; border: none !important; }
+            @page { margin: 0; size: auto; }
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div id="loaderOverlay">
+    <div style="width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--pink); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+    <h3 id="loaderText" style="margin-top:20px;">AI WORKING...</h3>
+</div>
+
+<div class="header">
+    <div class="logo">APNA <span>STUDIO</span> PRO</div>
+    <div id="clock"></div>
+    <div class="user-info">V5.6 FINAL MASTER</div>
+</div>
+
+<div class="main-layout">
+    <aside class="sidebar">
+        <div class="section-box" style="background: var(--dark);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color:white; font-size:10px; font-weight:800;">CONTROLS</span>
+                <div>
+                    <button class="btn" onclick="undo()" style="padding: 2px 8px;"><i class="fa fa-undo"></i></button>
+                    <button class="btn" onclick="redo()" style="padding: 2px 8px;"><i class="fa fa-redo"></i></button>
+                </div>
+            </div>
+            <button class="btn" onclick="location.reload()" style="background:var(--danger); color:white; width:100%; font-size:11px;">RESET EVERYTHING</button>
+        </div>
+
+        <div class="section-box">
+            <input type="file" id="upload" hidden accept="image/*">
+            <button class="btn-main" onclick="document.getElementById('upload').click()"><i class="fa fa-upload"></i> UPLOAD NEW PHOTO</button>
+            <div class="btn-group" style="margin-top:8px;">
+                <button class="btn" style="background:var(--purple); color:white" onclick="removeBG()">Remove BG</button>
+                <button class="btn" style="background:var(--pink); color:white" onclick="autoEnhance()">Auto Studio</button>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title"><i class="fa fa-sliders"></i> Adjustments</div>
+            <div class="slider-group">
+                <label>Brightness <span id="v-br">100%</span></label>
+                <input type="range" id="br" min="50" max="180" value="100" oninput="applyAll()">
+            </div>
+            <div class="slider-group">
+                <label>Contrast <span id="v-ct">100%</span></label>
+                <input type="range" id="ct" min="50" max="180" value="100" oninput="applyAll()">
+            </div>
+            <div class="slider-group">
+                <label>Saturation <span id="v-sat">100%</span></label>
+                <input type="range" id="sat" min="0" max="200" value="100" oninput="applyAll()">
+            </div>
+            <div class="slider-group">
+                <label>Face Smooth <span id="v-sm">0px</span></label>
+                <input type="range" id="sm" min="0" max="4" step="0.1" value="0" oninput="applyAll()">
+            </div>
+            <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" id="photoBorder" onchange="applyAll()">
+                <label style="font-size:11px; font-weight:bold;">ADD CUTTING BORDER</label>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title"><i class="fa fa-fill-drip"></i> Background</div>
+            <input type="color" id="bgColor" value="#ffffff" oninput="applyAll()" style="width:100%; height:30px; cursor:pointer;">
+            <div style="display:flex; gap:8px; margin-top:8px;">
+                <div class="color-dot" style="background:#ffffff;" onclick="setStudioBG('#ffffff')"></div>
+                <div class="color-dot" style="background:#a5d8ff;" onclick="setStudioBG('#a5d8ff')"></div>
+                <div class="color-dot" style="background:#004a99;" onclick="setStudioBG('#004a99')"></div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title"><i class="fa fa-pen-nib"></i> Signature Hub</div>
+            <div class="btn-group" style="margin-bottom:8px;">
+                <button class="btn" onclick="document.getElementById('sigUpload').click()">Upload</button>
+                <button class="btn" style="background:var(--accent); color:white" onclick="openSignPad()">Draw Sign</button>
+            </div>
+            <input type="file" id="sigUpload" hidden accept="image/*">
+            <div class="slider-group">
+                <label>Size <span id="v-ssize">150px</span></label>
+                <input type="range" id="sigSize" min="50" max="400" value="150" oninput="applyAll()">
+            </div>
+            <div class="slider-group">
+                <label>Contrast <span id="v-sct">100%</span></label>
+                <input type="range" id="sigCt" min="50" max="300" value="100" oninput="applyAll()">
+            </div>
+        </div>
+
+        <div class="section-box" style="background: #fff4f8; border: 1px solid var(--pink);">
+            <div class="section-title"><i class="fa fa-download"></i> Identity & Strict Export</div>
+            <input type="text" id="candName" placeholder="NAME" oninput="applyAll()" style="width:94%; padding:8px; border-radius:5px; border:1px solid #ddd; margin-bottom:5px;">
+            <input type="text" id="candDate" placeholder="D.O.P" oninput="applyAll()" style="width:94%; padding:8px; border-radius:5px; border:1px solid #ddd; margin-bottom:10px;">
+            
+            <div style="display:flex; gap:8px; margin-bottom:10px;">
+                <input type="number" id="maxKB" value="50" style="width:50%; padding:8px; border-radius:5px; border:1px solid #ddd;">
+                <select id="imgFormat" style="width:50%; padding:8px; border-radius:5px; border:1px solid #ddd;">
+                    <option value="image/jpeg">JPG</option>
+                    <option value="image/png">PNG (HQ)</option>
+                </select>
+            </div>
+            <div class="btn-group">
+                <button class="btn-main" onclick="finalDownload('direct')">DOWNLOAD</button>
+                <button class="btn-main" style="background:var(--dark)" onclick="finalDownload('pdf')">PDF</button>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title"><i class="fa fa-print"></i> Print Engine</div>
+            <select id="layoutMode" style="width:100%; padding:8px; border-radius:5px; border:1px solid #ddd; margin-bottom:8px;">
+                <option value="passport">Passport Only</option>
+                <option value="stamp">Stamp Only</option>
+                <option value="combo">Combo (8+12)</option>
+            </select>
+            <input type="number" id="printCount" value="6" style="width:94%; padding:8px; border-radius:5px; border:1px solid #ddd; margin-bottom:10px;">
+            <button class="btn-main" style="background:var(--success)" onclick="showPrintPreview()">PREVIEW & ARRANGE</button>
+        </div>
+    </aside>
+
+    <main class="workspace">
+        <div class="editor-view"><div id="editor-container"><img id="mainImage" src=""></div></div>
+        <div class="footer-bar">
+            <span>Live KB Est: <b id="liveKB">0 KB</b></span>
+            <span>Apna Studio v5.6 Stable Engine</span>
+        </div>
+    </main>
+</div>
+
+<div id="printModal">
+    <div class="preview-container" style="display:flex; flex-direction:column; height:100%;">
+        <div class="preview-header">
+            <div style="font-size: 20px; font-weight: 800;"><i class="fa fa-print"></i> PRINT STUDIO</div>
+            <div style="display:flex; gap:12px;">
+                <button class="btn" style="background:var(--accent); color:white" onclick="autoFitPhotos()"><i class="fa fa-magic"></i> AUTO FIT</button>
+                <button class="btn" style="background:var(--success); color:white; width:120px;" onclick="window.print()">PRINT</button>
+                <button class="btn" style="background:rgba(255,255,255,0.2); color:white" onclick="document.getElementById('printModal').style.display='none'">CLOSE</button>
+            </div>
+        </div>
+        <div id="previewArea"><canvas id="previewCanvas"></canvas></div>
+    </div>
+</div>
+
+<div id="drawModal" style="justify-content:center; align-items:center;">
+    <div style="background:white; border-radius:20px; padding:30px; width:400px; text-align:center;">
+        <h3>Draw Signature</h3>
+        <canvas id="drawCanvas" width="350" height="200" style="background:#f8fafc; border:2px dashed #ddd; cursor:crosshair;"></canvas>
+        <div class="btn-group" style="margin-top:20px;">
+            <button class="btn" onclick="clearSignPad()">Clear</button>
+            <button class="btn" style="background:var(--success); color:white" onclick="saveSignPad()">Apply</button>
+        </div>
+        <button class="btn-main" style="margin-top:10px; background:#444" onclick="document.getElementById('drawModal').style.display='none'">Cancel</button>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+let cropper, currentSig = null, undoStack = [], redoStack = [], isUndoing = false;
+let previewPhotos = [], selectedIdx = -1, dX, dY;
+const API_KEY = 'QnsDa3AogfoC8w5jqB4ShNz9';
+
+// 1. CLOCK
+setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+
+// UPLOAD FIX
+document.getElementById('upload').onchange = (e) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+        const img = document.getElementById('mainImage');
+        img.src = reader.result;
+        if(cropper) cropper.destroy();
+        setTimeout(() => {
+            cropper = new Cropper(img, { viewMode: 1, dragMode: 'move', autoCropArea: 0.9, ready() { applyAll(); } });
+        }, 100);
+    };
+    reader.readAsDataURL(e.target.files[0]);
+};
+
+// 2. FILTERS ENGINE
+function applyAll(save = true) {
+    if(!cropper) return;
+    const br = document.getElementById('br').value, ct = document.getElementById('ct').value;
+    const sat = document.getElementById('sat').value, smV = document.getElementById('sm').value;
+    const ss = document.getElementById('sigSize').value, sct = document.getElementById('sigCt').value;
+
+    document.getElementById('v-br').innerText = br + "%";
+    document.getElementById('v-ct').innerText = ct + "%";
+    document.getElementById('v-sat').innerText = sat + "%";
+    document.getElementById('v-sm').innerText = smV + "px";
+    document.getElementById('v-ssize').innerText = ss + "px";
+    document.getElementById('v-sct').innerText = sct + "%";
+
+    const filter = `brightness(${br}%) contrast(${ct}%) saturate(${sat}%) blur(${smV}px)`;
+    document.querySelectorAll('.cropper-container img').forEach(img => img.style.filter = filter);
+    const cvs = document.querySelector('.cropper-canvas');
+    if(cvs) cvs.style.backgroundColor = document.getElementById('bgColor').value;
+
+    if(currentSig) { 
+        currentSig.style.width = ss + "px";
+        currentSig.style.filter = `contrast(${sct}%) grayscale(1)`; 
+    }
+    if(save && !isUndoing) saveState();
+    updateLiveSize();
+}
+
+function getFinalCanvas() {
+    const canvas = cropper.getCroppedCanvas();
+    const final = document.createElement('canvas');
+    final.width = canvas.width; final.height = canvas.height;
+    const ctx = final.getContext('2d');
+    
+    ctx.fillStyle = document.getElementById('bgColor').value; ctx.fillRect(0,0,final.width,final.height);
+    ctx.filter = `brightness(${document.getElementById('br').value}%) contrast(${document.getElementById('ct').value}%) saturate(${document.getElementById('sat').value}%) blur(${document.getElementById('sm').value}px)`;
+    ctx.drawImage(canvas, 0, 0);
+    ctx.filter = "none";
+
+    if(document.getElementById('photoBorder').checked) {
+        ctx.strokeStyle = "black"; ctx.lineWidth = Math.max(2, final.width*0.01); ctx.strokeRect(0,0,final.width,final.height);
+    }
+
+    const name = document.getElementById('candName').value, date = document.getElementById('candDate').value;
+    if(name || date) {
+        const bh = final.height * 0.15; ctx.fillStyle = "white"; ctx.fillRect(0, final.height-bh, final.width, bh);
+        ctx.fillStyle = "black"; ctx.textAlign = "center"; ctx.font = `bold ${Math.floor(bh*0.35)}px Arial`;
+        if(name && date) { ctx.fillText(name.toUpperCase(), final.width/2, final.height-(bh*0.55)); ctx.fillText(date, final.width/2, final.height-(bh*0.2)); }
+        else { ctx.fillText((name || date).toUpperCase(), final.width/2, final.height-(bh*0.4)); }
+    }
+
+    if(currentSig) {
+        const disp = document.querySelector('.cropper-canvas img');
+        const sx = final.width/disp.clientWidth, sy = final.height/disp.clientHeight;
+        ctx.filter = `contrast(${document.getElementById('sigCt').value}%) grayscale(1)`;
+        ctx.globalCompositeOperation = "multiply";
+        ctx.drawImage(currentSig, (currentSig.offsetLeft-disp.offsetLeft)*sx, (currentSig.offsetTop-disp.offsetTop)*sy, currentSig.clientWidth*sx, currentSig.clientHeight*sy);
+        ctx.globalCompositeOperation = "source-over";
+    }
+    return final;
+}
+
+// 3. EXPORT ENGINE
+async function finalDownload(type) {
+    if(!cropper) return;
+    const targetKB = parseInt(document.getElementById('maxKB').value);
+    const format = document.getElementById('imgFormat').value;
+    showLoading("PROCESSING QUALITY...");
+
+    let canvas = getFinalCanvas();
+    if(type === 'pdf') {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'px', [canvas.width, canvas.height]);
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, canvas.width, canvas.height);
+        pdf.save(`Studio_Export.pdf`);
+        hideLoading(); return;
+    }
+
+    let blob, minQ = 0.01, maxQ = 0.98, currentQ = 0.92;
+    if(format === 'image/jpeg') {
+        for(let i=0; i<10; i++) {
+            blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', currentQ));
+            if(blob.size/1024 > targetKB) maxQ = currentQ; else minQ = currentQ;
+            currentQ = (minQ + maxQ) / 2;
+        }
+    } else {
+        blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    }
+
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
+    link.download = `Studio_Photo.${format.split('/')[1]}`; link.click();
+    hideLoading();
+}
+
+// 4. PRINT ENGINE
+function showPrintPreview() {
+    if(!cropper) return alert("Photo load karein!");
+    const pC = document.getElementById('previewCanvas'), mode = document.getElementById('layoutMode').value;
+    pC.width = 2480; pC.height = 3508; pC.style.width = "550px"; 
+    
+    previewPhotos = [];
+    const source = getFinalCanvas();
+    let x = 80, y = 80, gap = 45;
+    const count = parseInt(document.getElementById('printCount').value);
+
+    if(mode === "combo") {
+        let pW = 413, pH = 531; 
+        for(let i=0; i<8; i++) { previewPhotos.push({x, y, w:pW, h:pH}); x+=pW+gap; if(x>2000){x=80;y+=pH+gap;} }
+        x=80; y+=100; let sW=295, sH=413; 
+        for(let i=0; i<12; i++){ previewPhotos.push({x, y, w:sW, h:sH}); x+=sW+gap; if(x>2000){x=80;y+=sH+gap;} }
+    } else {
+        let w = mode==="stamp"?295:413, h = mode==="stamp"?413:531;
+        for(let i=0; i<count; i++){ previewPhotos.push({x, y, w, h}); x+=w+gap; if(x+w>2400){x=80;y+=h+gap;} }
+    }
+    renderPreview();
+    document.getElementById('printModal').style.display='flex';
+}
+
+function renderPreview() {
+    const pC = document.getElementById('previewCanvas'), ctx = pC.getContext('2d'), source = getFinalCanvas();
+    ctx.fillStyle = "white"; ctx.fillRect(0,0,pC.width,pC.height);
+    previewPhotos.forEach((p, i) => {
+        ctx.drawImage(source, p.x, p.y, p.w, p.h);
+        ctx.setLineDash([15,10]); ctx.strokeStyle = (selectedIdx === i) ? "red" : "#ddd"; ctx.lineWidth = 4;
+        ctx.strokeRect(p.x, p.y, p.w, p.h);
+    });
+}
+
+function autoFitPhotos() {
+    let x = 80, y = 80, gap = 45;
+    previewPhotos.forEach(p => { p.x = x; p.y = y; x += p.w + gap; if(x + p.w > 2400) { x = 80; y += p.h + gap; } });
+    renderPreview();
+}
+
+// 5. SIGN PAD FIX
+const dCanvas = document.getElementById('drawCanvas'), dCtx = dCanvas.getContext('2d');
+let drawing = false;
+dCanvas.onmousedown = (e) => { drawing=true; dCtx.beginPath(); dCtx.moveTo(e.offsetX, e.offsetY); };
+dCanvas.onmousemove = (e) => { if(drawing){ dCtx.lineWidth=4; dCtx.lineCap='round'; dCtx.strokeStyle='black'; dCtx.lineTo(e.offsetX, e.offsetY); dCtx.stroke(); } };
+window.onmouseup = () => { drawing=false; };
+
+function openSignPad() { document.getElementById('drawModal').style.display='flex'; dCtx.clearRect(0,0,350,200); }
+function clearSignPad() { dCtx.clearRect(0,0,350,200); }
+function saveSignPad() { loadSignature(dCanvas.toDataURL()); document.getElementById('drawModal').style.display='none'; }
+
+// 6. DRAG LOGIC
+function loadSignature(src) {
+    if(currentSig) currentSig.remove();
+    currentSig = document.createElement('img'); currentSig.src=src; currentSig.className='sig-overlay';
+    currentSig.style.width=document.getElementById('sigSize').value+"px"; currentSig.style.top="50%"; currentSig.style.left="50%";
+    document.getElementById('editor-container').appendChild(currentSig);
+    makeDraggable(currentSig); applyAll();
+}
+
+function makeDraggable(el) {
+    let px=0, py=0;
+    el.onmousedown = (e) => {
+        e.preventDefault(); px=e.clientX; py=e.clientY;
+        document.onmousemove = (ev) => {
+            el.style.left = (el.offsetLeft - (px-ev.clientX))+"px";
+            el.style.top = (el.offsetTop - (py-ev.clientY))+"px";
+            px=ev.clientX; py=ev.clientY;
+        };
+        document.onmouseup = () => { document.onmousemove = null; };
+    };
+}
+
+// 7. OTHER TOOLS
+const pCanvas_Elem = document.getElementById('previewCanvas');
+pCanvas_Elem.onmousedown = (e) => {
+    const r = pCanvas_Elem.getBoundingClientRect(), s = pCanvas_Elem.width/r.width;
+    const mx = (e.clientX-r.left)*s, my = (e.clientY-r.top)*s;
+    selectedIdx = previewPhotos.findIndex(p => mx>p.x && mx<p.x+p.w && my>p.y && my<p.y+p.h);
+    if(selectedIdx!==-1) { dX = mx-previewPhotos[selectedIdx].x; dY = my-previewPhotos[selectedIdx].y; }
+};
+window.onmousemove = (e) => {
+    if(selectedIdx===-1) return;
+    const r = pCanvas_Elem.getBoundingClientRect(), s = pCanvas_Elem.width/r.width;
+    const mx = (e.clientX-r.left)*s, my = (e.clientY-r.top)*s;
+    previewPhotos[selectedIdx].x = mx-dX; previewPhotos[selectedIdx].y = my-dY;
+    renderPreview();
+};
+window.onmouseup = () => { selectedIdx = -1; };
+
+document.getElementById('sigUpload').onchange = (e) => {
+    const reader = new FileReader(); reader.onload = () => loadSignature(reader.result);
+    if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+};
+
+function showLoading(m) { document.getElementById('loaderOverlay').style.display='flex'; document.getElementById('loaderText').innerText=m; }
+function hideLoading() { document.getElementById('loaderOverlay').style.display='none'; }
+function setStudioBG(c) { document.getElementById('bgColor').value=c; applyAll(); }
+async function removeBG() { if(!cropper) return; showLoading("REMOVING BG..."); const f=new FormData(); f.append('image_file', document.getElementById('upload').files[0]); f.append('size','auto'); try { const r=await fetch('https://api.remove.bg/v1.0/removebg', {method:'POST',headers:{'X-Api-Key':API_KEY},body:f}); if(r.ok){const b=await r.blob(); cropper.replace(URL.createObjectURL(b));} } finally{hideLoading();} }
+function autoEnhance() { showLoading("ENHANCING..."); setTimeout(() => { document.getElementById('br').value=110; document.getElementById('ct').value=115; applyAll(); hideLoading(); }, 500); }
+async function updateLiveSize() { if(cropper) getFinalCanvas().toBlob(b => { document.getElementById('liveKB').innerText = Math.floor(b.size/1024)+" KB"; }, 'image/jpeg', 0.9); }
+function saveState() { const s={br:document.getElementById('br').value,ct:document.getElementById('ct').value,sat:document.getElementById('sat').value,sm:document.getElementById('sm').value,n:document.getElementById('candName').value,d:document.getElementById('candDate').value,bg:document.getElementById('bgColor').value}; undoStack.push(s); if(undoStack.length>20)undoStack.shift(); }
+function undo() { if(undoStack.length>1){ isUndoing=true; redoStack.push(undoStack.pop()); const s=undoStack[undoStack.length-1]; document.getElementById('br').value=s.br; document.getElementById('ct').value=s.ct; document.getElementById('sat').value=s.sat; document.getElementById('sm').value=s.sm; document.getElementById('bgColor').value=s.bg; applyAll(false); isUndoing=false; } }
+</script>
+</body>
+</html>
