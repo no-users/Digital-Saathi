@@ -43,23 +43,18 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 
         .premium-logo {
-            width: 42px;
-            height: 42px;
+            width: 42px; height: 42px;
             background: linear-gradient(135deg, var(--accent), #2563eb);
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             box-shadow: 0 0 15px var(--glow);
         }
 
         .brand-text {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
+            font-size: 22px; font-weight: 800;
             background: linear-gradient(to right, #fff, #7dd3fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -67,9 +62,9 @@
 
         nav { 
             display: flex; 
-            gap: 5px; 
+            gap: 8px; 
             background: rgba(255, 255, 255, 0.1);
-            padding: 5px;
+            padding: 6px;
             border-radius: 14px;
         }
 
@@ -84,8 +79,11 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            cursor: pointer;
+            white-space: nowrap;
         }
 
+        /* AAPKA ORIGINAL HOVER STYLE */
         .nav-link:hover {
             background: white;
             color: #e607c8;
@@ -93,111 +91,101 @@
             transform: translateY(-1px);
         }
 
+        /* AAPKA ORIGINAL ACTIVE STYLE */
         .nav-link.active {
-            .nav-link.active {
-    /* Premium Gradient Blue */
-    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); 
-    color: white !important;
-    font-weight: 700;
-    /* Soft Neon Glow */
-    box-shadow: 0 4px 15px rgba(58, 123, 213, 0.4); 
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); 
+            color: white !important;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(58, 123, 213, 0.4); 
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .loader {
+        /* --- STABLE HOVER DROPDOWN --- */
+        .nav-item-dropdown {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px; 
+            margin-bottom: -15px;
+        }
+
+        .premium-dropdown {
+            display: none; 
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #c46812;
-            z-index: 1;
+            top: 85%;
+            left: 0;
+            background-color: #ffffff;
+            min-width: 200px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            padding: 8px;
+            z-index: 1000;
         }
 
-        .header-right { display: flex; align-items: center; gap: 20px; }
-        /* Container ko thoda clean aur spaced banayein */
-.clock-container {
-    text-align: right;
-    padding-right: 25px;
-    border-right: 2px solid rgba(14, 165, 233, 0.2); /* Soft Border */
-    margin-right: 10px;
-}
-
-/* Clock styling - Bold aur Glowing */
-#clock {
-    background: linear-gradient(to bottom, #fff 0%, #cbd5e1 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-family: 'Courier New', monospace; /* Digital look ke liye */
-    font-size: 26px;
-    filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));
-}
-
-/* Date styling - Subtle aur Elegant */
-#date {
-    font-size: 11px;
-    text-transform: uppercase;
-    color: #0ea5e9; /* Sky Blue accent */
-    font-weight: 700;
-    letter-spacing: 2px;
-    margin-top: 2px;
-    display: block;
-    opacity: 0.9;
-}
-
-        .avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 2px solid var(--accent);
-            padding: 2px;
-            background: #fff;
-        }
-
-        .main-view {
-            flex-grow: 1;
-            padding: 5px;
-            background: radial-gradient(circle at center, #1a237e 0%, #0d1117 100%);
-        }
-
-        .app-canvas {
-            width: 100%;
-            height: 100%;
-            background: #ffffff;
-            border-radius: 20px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
+        .nav-item-dropdown:hover .premium-dropdown {
             display: block;
-            position: relative;
-            z-index: 2;
+            animation: slideDown 0.2s ease-out;
         }
 
-        .marquee-footer {
-            background: #0f172a;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            padding: 0 30px;
-            font-size: 12px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+        .nav-item-dropdown:hover .arrow-icon { transform: rotate(180deg); }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .badge {
-            background: #ef4444;
-            color: white;
-            padding: 2px 10px;
-            border-radius: 6px;
-            font-weight: 800;
-            margin-right: 15px;
+        .premium-dropdown a {
+            color: #333 !important;
+            padding: 10px 15px;
+            text-decoration: none;
+            display: flex; align-items: center; gap: 10px;
+            border-radius: 8px; font-size: 14px;
         }
+
+        .premium-dropdown a:hover { background-color: #f4f7ff !important; color: #6366f1 !important; }
+
+        /* --- HEADER RIGHT --- */
+        .header-right { display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
+        
+        .clock-container {
+            text-align: right;
+            padding-right: 25px;
+            border-right: 2px solid rgba(14, 165, 233, 0.2);
+        }
+
+        #clock {
+            background: linear-gradient(to bottom, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Courier New', monospace;
+            font-size: 26px;
+        }
+
+        #date {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #0ea5e9;
+            font-weight: 700;
+            display: block;
+        }
+
+        .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent); padding: 2px; background: #fff; }
+
+        /* --- MOBILE RESPONSIVE (ONLY ADJUSTMENTS) --- */
+        @media (max-width: 1024px) {
+            header { padding: 0 15px; height: auto; min-height: 70px; flex-wrap: wrap; justify-content: center; gap: 10px; padding-bottom: 10px; }
+            .brand { order: 1; }
+            .header-right { order: 2; }
+            nav { order: 3; width: 100%; justify-content: center; overflow-x: auto; padding: 4px; }
+            .nav-link { padding: 6px 12px; font-size: 12px; }
+            #clock { font-size: 20px; }
+            .clock-container { padding-right: 10px; }
+        }
+
+        .main-view { flex-grow: 1; padding: 15px; background: radial-gradient(circle at center, #1a237e 0%, #0d1117 100%); }
+        .app-canvas { width: 100%; height: 100%; background: #ffffff; border-radius: 20px; overflow: hidden; position: relative; }
+        iframe { width: 100%; height: 100%; border: none; }
+        .marquee-footer { background: #0f172a; height: 40px; display: flex; align-items: center; padding: 0 30px; font-size: 12px; }
+        .badge { background: #ef4444; color: white; padding: 2px 10px; border-radius: 6px; font-weight: 800; margin-right: 15px; }
     </style>
 </head>
 <body>
@@ -205,16 +193,26 @@
     <header>
         <div class="brand">
             <div class="premium-logo">
-    <img src="Studio_Photo_31.8KB.png" 
-         alt="Logo" 
-         style="width: 100%; height: 100%; object-fit: contain; border-radius: 10px;">
-</div>
+                <img src="Studio_Photo_31.8KB.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 10px;">
+            </div>
             <span class="brand-text">DIGITAL SAATH</span>
         </div>
 
         <nav id="top-nav">
             <a href="#" class="nav-link active" onclick="setActive(this)"><i class="fa-solid fa-house"></i> Dashboard</a>
-            <a href="photo.html" target="_blank" class="nav-link" onclick="setActive(this)"><i class="fa-solid fa-users"></i> Tools</a>
+            
+            <div class="nav-item-dropdown">
+                <div class="nav-link">
+                    <i class="fa-solid fa-screwdriver-wrench"></i> 
+                    <span>Tools</span>
+                    <i class="fa-solid fa-chevron-down arrow-icon" style="font-size: 0.7rem; transition: 0.3s;"></i>
+                </div> 
+                <div class="premium-dropdown">
+                    <a href="photo.html"><i class="fa-solid fa-user-plus"></i> Photos Crop</a>
+                    <a href="form.html"><i class="fa-solid fa-list-ul"></i> Declaration Form</a>
+                </div>
+            </div>
+
             <a href="#" class="nav-link" onclick="setActive(this)"><i class="fa-solid fa-gears"></i> Services</a>
             <a href="#" class="nav-link" onclick="setActive(this)"><i class="fa-solid fa-search"></i> Search</a>
         </nav>
@@ -230,14 +228,7 @@
 
     <main class="main-view">
         <div class="app-canvas">
-            <div class="loader" id="main-loader">
-                <i class="fa-solid fa-circle-notch fa-spin fa-3x"></i>
-            </div>
-
-            <iframe 
-                src="https://script.google.com/macros/s/AKfycbx6YHJL6khiRjCv-KUsvOyw7RhgXpk-8hIzNs3aLLE8YgHrUOWZkH7Qsf-ZJFnTPZA2/exec"
-                onload="hideLoader()">
-            </iframe>
+            <iframe src="https://script.google.com/macros/s/AKfycbyBBOPNJQrKzrTe0T8lE5GbRrH0VkuabGPzNjZOaLdQPv9bjvHa5JyM2B1kFFuTYz2g/exec"></iframe>
         </div>
     </main>
 
@@ -247,17 +238,10 @@
     </footer>
 
     <script>
-        // Loader ko chhupane ka function
-        function hideLoader() {
-            document.getElementById('main-loader').style.display = 'none';
-        }
-
         function updateDisplay() {
             const now = new Date();
-            document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { 
-                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
-            });
-            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            const options = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
             document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
         }
         setInterval(updateDisplay, 1000);
