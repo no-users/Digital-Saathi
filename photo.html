@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APNA STUDIO PRO | MASTER v5.6 ULTIMATE</title>
+    <title>Digital Saath</title>
+    <link rel="icon" type="image/x-icon" href="Web_Icon.png">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -173,7 +174,7 @@
         </div>
 
         <div class="section-box" style="background: #fff4f8; border: 1px solid var(--pink);">
-            <div class="section-title"><i class="fa fa-download"></i> Identity & Strict Export</div>
+            <div class="section-title"><i class="fa fa-download"></i> Identity & Export</div>
             <input type="text" id="candName" placeholder="NAME" oninput="applyAll()" style="width:94%; padding:8px; border-radius:5px; border:1px solid #ddd; margin-bottom:5px;">
             <input type="text" id="candDate" placeholder="D.O.P" oninput="applyAll()" style="width:94%; padding:8px; border-radius:5px; border:1px solid #ddd; margin-bottom:10px;">
             
@@ -241,12 +242,12 @@
 <script>
 let cropper, currentSig = null, undoStack = [], redoStack = [], isUndoing = false;
 let previewPhotos = [], selectedIdx = -1, dX, dY;
-const API_KEY = 'QnsDa3AogfoC8w5jqB4ShNz9';
+const API_KEY = 'YOUR_API_KEY_HERE'; // Replace if needed
 
 // 1. CLOCK
 setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
 
-// UPLOAD FIX
+// UPLOAD
 document.getElementById('upload').onchange = (e) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -254,10 +255,15 @@ document.getElementById('upload').onchange = (e) => {
         img.src = reader.result;
         if(cropper) cropper.destroy();
         setTimeout(() => {
-            cropper = new Cropper(img, { viewMode: 1, dragMode: 'move', autoCropArea: 0.9, ready() { applyAll(); } });
+            cropper = new Cropper(img, { 
+                viewMode: 1, 
+                dragMode: 'move', 
+                autoCropArea: 0.9, 
+                ready() { applyAll(); } 
+            });
         }, 100);
     };
-    reader.readAsDataURL(e.target.files[0]);
+    if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
 };
 
 // 2. FILTERS ENGINE
@@ -275,7 +281,9 @@ function applyAll(save = true) {
     document.getElementById('v-sct').innerText = sct + "%";
 
     const filter = `brightness(${br}%) contrast(${ct}%) saturate(${sat}%) blur(${smV}px)`;
+    // Apply filter to all cropper images
     document.querySelectorAll('.cropper-container img').forEach(img => img.style.filter = filter);
+    
     const cvs = document.querySelector('.cropper-canvas');
     if(cvs) cvs.style.backgroundColor = document.getElementById('bgColor').value;
 
@@ -293,40 +301,48 @@ function getFinalCanvas() {
     final.width = canvas.width; final.height = canvas.height;
     const ctx = final.getContext('2d');
     
-    ctx.fillStyle = document.getElementById('bgColor').value; ctx.fillRect(0,0,final.width,final.height);
+    ctx.fillStyle = document.getElementById('bgColor').value; 
+    ctx.fillRect(0,0,final.width,final.height);
     ctx.filter = `brightness(${document.getElementById('br').value}%) contrast(${document.getElementById('ct').value}%) saturate(${document.getElementById('sat').value}%) blur(${document.getElementById('sm').value}px)`;
     ctx.drawImage(canvas, 0, 0);
     ctx.filter = "none";
 
     if(document.getElementById('photoBorder').checked) {
-        ctx.strokeStyle = "black"; ctx.lineWidth = Math.max(2, final.width*0.01); ctx.strokeRect(0,0,final.width,final.height);
+        ctx.strokeStyle = "black"; ctx.lineWidth = Math.max(2, final.width*0.01); 
+        ctx.strokeRect(0,0,final.width,final.height);
     }
 
     const name = document.getElementById('candName').value, date = document.getElementById('candDate').value;
     if(name || date) {
         const bh = final.height * 0.15; ctx.fillStyle = "white"; ctx.fillRect(0, final.height-bh, final.width, bh);
         ctx.fillStyle = "black"; ctx.textAlign = "center"; ctx.font = `bold ${Math.floor(bh*0.35)}px Arial`;
-        if(name && date) { ctx.fillText(name.toUpperCase(), final.width/2, final.height-(bh*0.55)); ctx.fillText(date, final.width/2, final.height-(bh*0.2)); }
-        else { ctx.fillText((name || date).toUpperCase(), final.width/2, final.height-(bh*0.4)); }
+        if(name && date) { 
+            ctx.fillText(name.toUpperCase(), final.width/2, final.height-(bh*0.55)); 
+            ctx.fillText(date, final.width/2, final.height-(bh*0.2)); 
+        } else { 
+            ctx.fillText((name || date).toUpperCase(), final.width/2, final.height-(bh*0.4)); 
+        }
     }
 
     if(currentSig) {
         const disp = document.querySelector('.cropper-canvas img');
-        const sx = final.width/disp.clientWidth, sy = final.height/disp.clientHeight;
-        ctx.filter = `contrast(${document.getElementById('sigCt').value}%) grayscale(1)`;
-        ctx.globalCompositeOperation = "multiply";
-        ctx.drawImage(currentSig, (currentSig.offsetLeft-disp.offsetLeft)*sx, (currentSig.offsetTop-disp.offsetTop)*sy, currentSig.clientWidth*sx, currentSig.clientHeight*sy);
-        ctx.globalCompositeOperation = "source-over";
+        if(disp){
+            const sx = final.width/disp.clientWidth, sy = final.height/disp.clientHeight;
+            ctx.filter = `contrast(${document.getElementById('sigCt').value}%) grayscale(1)`;
+            ctx.globalCompositeOperation = "multiply";
+            ctx.drawImage(currentSig, (currentSig.offsetLeft-disp.offsetLeft)*sx, (currentSig.offsetTop-disp.offsetTop)*sy, currentSig.clientWidth*sx, currentSig.clientHeight*sy);
+            ctx.globalCompositeOperation = "source-over";
+        }
     }
     return final;
 }
 
-// 3. EXPORT ENGINE
+// 3. EXPORT
 async function finalDownload(type) {
     if(!cropper) return;
     const targetKB = parseInt(document.getElementById('maxKB').value);
     const format = document.getElementById('imgFormat').value;
-    showLoading("PROCESSING QUALITY...");
+    showLoading("PROCESSING...");
 
     let canvas = getFinalCanvas();
     if(type === 'pdf') {
@@ -339,7 +355,7 @@ async function finalDownload(type) {
 
     let blob, minQ = 0.01, maxQ = 0.98, currentQ = 0.92;
     if(format === 'image/jpeg') {
-        for(let i=0; i<10; i++) {
+        for(let i=0; i<8; i++) {
             blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', currentQ));
             if(blob.size/1024 > targetKB) maxQ = currentQ; else minQ = currentQ;
             currentQ = (minQ + maxQ) / 2;
@@ -348,7 +364,8 @@ async function finalDownload(type) {
         blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
     }
 
-    const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
+    const link = document.createElement('a'); 
+    link.href = URL.createObjectURL(blob);
     link.download = `Studio_Photo.${format.split('/')[1]}`; link.click();
     hideLoading();
 }
@@ -360,9 +377,8 @@ function showPrintPreview() {
     pC.width = 2480; pC.height = 3508; pC.style.width = "550px"; 
     
     previewPhotos = [];
-    const source = getFinalCanvas();
-    let x = 80, y = 80, gap = 45;
     const count = parseInt(document.getElementById('printCount').value);
+    let x = 80, y = 80, gap = 45;
 
     if(mode === "combo") {
         let pW = 413, pH = 531; 
@@ -393,7 +409,7 @@ function autoFitPhotos() {
     renderPreview();
 }
 
-// 5. SIGN PAD FIX
+// 5. SIGN PAD
 const dCanvas = document.getElementById('drawCanvas'), dCtx = dCanvas.getContext('2d');
 let drawing = false;
 dCanvas.onmousedown = (e) => { drawing=true; dCtx.beginPath(); dCtx.moveTo(e.offsetX, e.offsetY); };
@@ -404,13 +420,16 @@ function openSignPad() { document.getElementById('drawModal').style.display='fle
 function clearSignPad() { dCtx.clearRect(0,0,350,200); }
 function saveSignPad() { loadSignature(dCanvas.toDataURL()); document.getElementById('drawModal').style.display='none'; }
 
-// 6. DRAG LOGIC
+// 6. DRAG & SIGN LOGIC
 function loadSignature(src) {
     if(currentSig) currentSig.remove();
-    currentSig = document.createElement('img'); currentSig.src=src; currentSig.className='sig-overlay';
-    currentSig.style.width=document.getElementById('sigSize').value+"px"; currentSig.style.top="50%"; currentSig.style.left="50%";
+    currentSig = document.createElement('img'); 
+    currentSig.src=src; currentSig.className='sig-overlay';
+    currentSig.style.width=document.getElementById('sigSize').value+"px"; 
+    currentSig.style.top="50%"; currentSig.style.left="50%";
     document.getElementById('editor-container').appendChild(currentSig);
-    makeDraggable(currentSig); applyAll();
+    makeDraggable(currentSig); 
+    applyAll();
 }
 
 function makeDraggable(el) {
@@ -426,7 +445,7 @@ function makeDraggable(el) {
     };
 }
 
-// 7. OTHER TOOLS
+// 7. PREVIEW DRAG
 const pCanvas_Elem = document.getElementById('previewCanvas');
 pCanvas_Elem.onmousedown = (e) => {
     const r = pCanvas_Elem.getBoundingClientRect(), s = pCanvas_Elem.width/r.width;
@@ -434,28 +453,76 @@ pCanvas_Elem.onmousedown = (e) => {
     selectedIdx = previewPhotos.findIndex(p => mx>p.x && mx<p.x+p.w && my>p.y && my<p.y+p.h);
     if(selectedIdx!==-1) { dX = mx-previewPhotos[selectedIdx].x; dY = my-previewPhotos[selectedIdx].y; }
 };
-window.onmousemove = (e) => {
+
+window.addEventListener('mousemove', (e) => {
     if(selectedIdx===-1) return;
     const r = pCanvas_Elem.getBoundingClientRect(), s = pCanvas_Elem.width/r.width;
     const mx = (e.clientX-r.left)*s, my = (e.clientY-r.top)*s;
     previewPhotos[selectedIdx].x = mx-dX; previewPhotos[selectedIdx].y = my-dY;
     renderPreview();
-};
-window.onmouseup = () => { selectedIdx = -1; };
+});
+
+window.addEventListener('mouseup', () => { selectedIdx = -1; });
 
 document.getElementById('sigUpload').onchange = (e) => {
     const reader = new FileReader(); reader.onload = () => loadSignature(reader.result);
     if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
 };
 
+// HELPERS
 function showLoading(m) { document.getElementById('loaderOverlay').style.display='flex'; document.getElementById('loaderText').innerText=m; }
 function hideLoading() { document.getElementById('loaderOverlay').style.display='none'; }
 function setStudioBG(c) { document.getElementById('bgColor').value=c; applyAll(); }
-async function removeBG() { if(!cropper) return; showLoading("REMOVING BG..."); const f=new FormData(); f.append('image_file', document.getElementById('upload').files[0]); f.append('size','auto'); try { const r=await fetch('https://api.remove.bg/v1.0/removebg', {method:'POST',headers:{'X-Api-Key':API_KEY},body:f}); if(r.ok){const b=await r.blob(); cropper.replace(URL.createObjectURL(b));} } finally{hideLoading();} }
-function autoEnhance() { showLoading("ENHANCING..."); setTimeout(() => { document.getElementById('br').value=110; document.getElementById('ct').value=115; applyAll(); hideLoading(); }, 500); }
-async function updateLiveSize() { if(cropper) getFinalCanvas().toBlob(b => { document.getElementById('liveKB').innerText = Math.floor(b.size/1024)+" KB"; }, 'image/jpeg', 0.9); }
-function saveState() { const s={br:document.getElementById('br').value,ct:document.getElementById('ct').value,sat:document.getElementById('sat').value,sm:document.getElementById('sm').value,n:document.getElementById('candName').value,d:document.getElementById('candDate').value,bg:document.getElementById('bgColor').value}; undoStack.push(s); if(undoStack.length>20)undoStack.shift(); }
-function undo() { if(undoStack.length>1){ isUndoing=true; redoStack.push(undoStack.pop()); const s=undoStack[undoStack.length-1]; document.getElementById('br').value=s.br; document.getElementById('ct').value=s.ct; document.getElementById('sat').value=s.sat; document.getElementById('sm').value=s.sm; document.getElementById('bgColor').value=s.bg; applyAll(false); isUndoing=false; } }
+
+async function removeBG() { 
+    if(!cropper) return; 
+    showLoading("REMOVING BG..."); 
+    const f=new FormData(); 
+    f.append('image_file', document.getElementById('upload').files[0]); 
+    f.append('size','auto'); 
+    try { 
+        const r=await fetch('https://api.remove.bg/v1.0/removebg', {method:'POST',headers:{'X-Api-Key':API_KEY},body:f}); 
+        if(r.ok){const b=await r.blob(); cropper.replace(URL.createObjectURL(b));} 
+    } catch(err) { alert("API Error or Key missing!"); } finally{hideLoading();} 
+}
+
+function autoEnhance() { 
+    showLoading("ENHANCING..."); 
+    setTimeout(() => { 
+        document.getElementById('br').value=110; 
+        document.getElementById('ct').value=115; 
+        applyAll(); hideLoading(); 
+    }, 500); 
+}
+
+async function updateLiveSize() { 
+    if(cropper) {
+        const canvas = getFinalCanvas();
+        canvas.toBlob(b => { 
+            if(b) document.getElementById('liveKB').innerText = Math.floor(b.size/1024)+" KB"; 
+        }, 'image/jpeg', 0.9);
+    }
+}
+
+function saveState() { 
+    const s={br:document.getElementById('br').value,ct:document.getElementById('ct').value,sat:document.getElementById('sat').value,sm:document.getElementById('sm').value,bg:document.getElementById('bgColor').value}; 
+    undoStack.push(s); if(undoStack.length>20)undoStack.shift(); 
+}
+
+function undo() { 
+    if(undoStack.length>1){ 
+        isUndoing=true; 
+        redoStack.push(undoStack.pop()); 
+        const s=undoStack[undoStack.length-1]; 
+        document.getElementById('br').value=s.br; 
+        document.getElementById('ct').value=s.ct; 
+        document.getElementById('sat').value=s.sat; 
+        document.getElementById('sm').value=s.sm; 
+        document.getElementById('bgColor').value=s.bg; 
+        applyAll(false); 
+        isUndoing=false; 
+    } 
+}
 </script>
 </body>
 </html>
