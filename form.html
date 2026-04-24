@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Declaration Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <style>
+        :root {
+            --bg-main: #e3e6e7;
+            --accent: #f59e0b; /* Golden Touch */
+            --glass-white: rgba(255, 255, 255, 0.98);
+            --text-dark: #030f2b;
+            --text-muted: #2e3033;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; 
+            background-color: var(--bg-main);
+            /* Heart-Touching Background Pattern */
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.1) 0px, transparent 50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* The Premium Floating Card */
+        .master-card {
+            width: 100%; max-width: 820px;
+            background: var(--glass-white);
+            border-radius: 5px;
+            padding: 50px;
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.3);
+            position: relative;
+            animation: cardEntrance 1s cubic-bezier(0.16, 1, 0.3, 1);
+            margin: 20px;
+        }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .header-box { text-align: center; margin-bottom: 45px; }
+        .header-box h1 { font-size: 34px; font-weight: 800; color: var(--text-dark); margin: 0; letter-spacing: -1.5px; }
+        .header-box p { color: var(--text-muted); font-size: 15px; margin-top: 8px; font-weight: 500; }
+
+        /* Form Grid based on your Layout */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .full-span { grid-column: span 2; }
+
+        .field-group { display: flex; flex-direction: column; }
+        .field-group label { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.8px; }
+        
+        input { 
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 08px;
+            padding: 15px 20px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-dark);
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-premium {
+            width: 100%;
+            background: var(--text-dark);
+            color: white;
+            padding: 18px;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 40px;
+            transition: 0.4s;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+        }
+
+        .btn-premium:hover { 
+            background: var(--accent);
+            transform: translateY(-4px) scale(1.02); 
+            box-shadow: 0 25px 50px -12px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Preview Screen - Pure Official Format */
+        #preview-section { display: none; background: #eaeaec; min-height: 100vh; padding: 50px 0; width: 100%; }
+        .a4-paper { background: white; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 25mm 20mm; box-shadow: 0 0 50px rgba(0,0,0,0.5); box-sizing: border-box; font-family: 'Times New Roman', serif; }
+        .doc-title { text-align: center; font-size: 26px; font-weight: bold; text-decoration: underline; margin-bottom: 50px; }
+        .doc-body { font-size: 19px; line-height: 2; text-align: justify; }
+        .total-highlight { border: 2px solid #000; padding: 10px; margin: 20px 0; font-weight: bold; font-size: 21px; text-align: center; background: #ffffff; }
+
+        .float-nav { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: white; padding: 15px 40px; border-radius: 100px; display: flex; gap: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid #eee; }
+        .nav-btn { padding: 12px 25px; border-radius: 50px; border: none; font-weight: 800; cursor: pointer; font-size: 14px; transition: 0.2s; }
+
+        @media print {
+            .master-card, .float-nav { display: none !important; }
+            #preview-section { display: block !important; padding: 0; }
+            .a4-paper { box-shadow: none; border: none; margin: 0; width: 100%; }
+        }
+        .field-group label::after {
+    content: " *";
+    color: red;
+}
+       
+    </style>
+</head>
+<body>
+
+<div class="master-card" id="form-ui">
+    <div class="header-box">
+        <h1>Income Declaration Form</h1>
+        <p>Enter your details and get official  declaration form</p>
+    </div>
+
+    <div class="form-grid">
+        <div class="field-group full-span">
+            <label>YOUR Naam</label>
+            <input type="text" id="in-name" value="" placeholder="Full Name"required>
+        </div>
+        <div class="field-group">
+            <label>FATHER NAME</label>
+            <input type="text" id="in-father" placeholder="Full Name"required>
+        </div>
+        <div class="field-group">
+            <label>MOTHER NAME</label>
+            <input type="text" id="in-mother" placeholder="Full Name"required>
+        </div>
+        <div class="field-group">
+            <label>VILLAGE</label>
+            <input type="text" id="in-village" placeholder="Village Name"required>
+        </div>
+        <div class="field-group">
+            <label>POST OFFICE</label>
+            <input type="text" id="in-po" placeholder="Post Office"required>
+        </div>
+        <div class="field-group">
+            <label>POLICE STATION</label>
+            <input type="text" id="in-thana" placeholder="Police Station"required>
+        </div>
+        <div class="field-group">
+            <label>DISTRICT</label>
+            <input type="text" id="in-dist" placeholder="District"required>
+        </div>
+        <div class="field-group">
+            <label>KRISHI INCOME (₹)</label>
+            <input type="number" id="in-agri" placeholder="0"required>
+        </div>
+        <div class="field-group">
+            <label>BUSINESS INCOME (₹)</label>
+            <input type="number" id="in-biz" placeholder="0"required>
+        </div>
+        <div class="field-group">
+            <label>OTHER INCOME (₹)</label>
+            <input type="number" id="in-other" placeholder="0"required>
+        </div>
+        <div class="field-group">
+            <label>SIGNATURE UPLODE</label>
+            <input type="file" id="in-sig" accept="image/*" style="border:none; padding:0; font-size:12px; background:transparent;"  required>
+        </div>
+    </div>
+
+    <button class="btn-premium" onclick="generate()">Generate Declaration Form</button>
+</div>
+
+<div id="preview-section">
+    <div class="a4-paper">
+        <div class="doc-title">आय प्रमाण पत्र हेतु स्वयं शपथ-पत्र</div>
+        <div class="doc-body">
+            मैं <b><span id="p-name"></span></b>, पिता <b><span id="p-father"></span></b>, माता <b><span id="p-mother"></span></b>, ग्राम <b><span id="p-village"></span></b>, पोस्ट <b><span id="p-po"></span></b>, थाना <b><span id="p-thana"></span></b>, जिला <b><span id="p-dist"></span></b>, राज्य बिहार, शपथ पूर्वक निम्नलिखित घोषणा करता/करती हूँ:- <br><br>
+            1. यह कि मैं उपरोक्त पते का स्थायी निवासी हूँ।<br>
+            2. यह कि मेरे परिवार की सभी स्रोतों से कुल वार्षिक आय का विवरण निम्नवत है:<br>
+            &nbsp;&nbsp;&nbsp;• कृषि से आय: ₹ <b><span id="p-agri"></span></b><br>
+            &nbsp;&nbsp;&nbsp;• व्यवसाय से आयः ₹ <b><span id="p-biz"></span></b><br>
+            &nbsp;&nbsp;&nbsp;• अन्य स्रोतों से आय: ₹ <b><span id="p-other"></span></b><br>
+            
+            <div class="total-highlight">
+                कुल वार्षिक आय: ₹ <span id="p-total"></span>/- (<span id="p-words"></span>)
+            </div>
+
+            3. यह कि मेरे द्वारा दी गई आय की जानकारी बिल्कुल सत्य है और इसमें कुछ भी छुपाया नहीं गया है ।<br>
+            4. यह कि यदि मेरे द्वारा दी गई जानकारी गलत या असत्य पाई जाती है, तो मेरे विरुद्ध कानूनी कार्रवाई की जा सकती है और प्राप्त प्रमाण पत्र रद्द किया जा सकता है ।
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:100px; align-items:flex-end;">
+            <div style="font-size:18px;">
+                स्थान: <b><span id="p-loc"></span></b><br>
+                दिनांक: <b><span id="p-date"></span></b>
+            </div>
+            <div style="text-align:center; min-width:220px">
+                <img id="sig-img" style="max-height:70px; display:none; margin: 0 auto 8px;">
+                <div style="border-top:1.5px solid #000; padding-top:10px; font-weight:bold; font-size:18px;">
+                    ( <span id="p-sign-name"></span> )<br>
+                    शपथकर्ता का हस्ताक्षर
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="float-nav">
+        <button class="nav-btn" style="background:#f1f5f9; color:#475569;" onclick="back()">Edit Details</button>
+        <button class="nav-btn" style="background:var(--text-dark); color:white;" onclick="window.print()">Download / Print PDF</button>
+    </div>
+</div>
+
+
+
+<script>
+    // 1. IDS ko sabse upar rakhein (Global Scope)
+    const ids = ['name', 'father', 'mother', 'village', 'po', 'thana', 'dist', 'agri', 'biz', 'other'];
+
+    // Hindi Typing Support
+    google.load("elements", "1", { packages: "transliteration" });
+    function init() {
+        var options = { sourceLanguage: 'en', destinationLanguage: ['hi'], shortcutKey: 'ctrl+g', transliterationEnabled: true };
+        var control = new google.elements.transliteration.TransliterationControl(options);
+        control.makeTransliteratable(["in-name", "in-father", "in-mother", "in-village", "in-po", "in-thana", "in-dist"]);
+    }
+    google.setOnLoadCallback(init);
+
+    // Indian Format (Lakh/Crore) numToWords
+    function numToWords(n) {
+        if (n === 0) return 'Zero';
+        const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        
+        const format = (num, unit) => {
+            if (num === 0) return '';
+            let out = "";
+            if (num > 19) {
+                out = b[Math.floor(num / 10)] + (num % 10 !== 0 ? " " + a[num % 10] : "");
+            } else {
+                out = a[num];
+            }
+            return out + " " + unit + " ";
+        };
+
+        let words = "";
+        words += format(Math.floor(n / 10000000), "Crore");
+        words += format(Math.floor((n / 100000) % 100), "Lakh");
+        words += format(Math.floor((n / 1000) % 100), "Thousand");
+        words += format(Math.floor((n / 100) % 10), "Hundred");
+        
+        let rem = n % 100;
+        if (rem > 0) {
+            if (words !== "") words += "and ";
+            if (rem > 19) words += b[Math.floor(rem / 10)] + (rem % 10 !== 0 ? " " + a[rem % 10] : "");
+            else words += a[rem];
+        }
+        return words.trim() + " Rupees Only";
+    }
+
+    // Ek hi Master Function
+    function generate() {
+        // Validation Check
+        const inputs = document.querySelectorAll('#form-ui input[required]');
+        let allFilled = true;
+
+        inputs.forEach(input => {
+            if (!input.value.trim() || (input.type === 'file' && input.files.length === 0)) {
+                allFilled = false;
+                input.style.border = "2px solid red";
+            } else {
+                input.style.border = "1.5px solid #e2e8f0";
+            }
+        });
+
+        if (!allFilled) {
+            alert("Fill All Details");
+            return;
+        }
+
+        // Data Fill Logic
+        ids.forEach(id => {
+            const val = document.getElementById('in-' + id).value;
+            const pElement = document.getElementById('p-' + id);
+            if(pElement) pElement.innerText = val;
+        });
+        // Aaj ki current date nikalne ke liye
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // January 0 hota hai isliye +1
+    const yyyy = today.getFullYear();
+    
+    const currentDate = dd + '/' + mm + '/' + yyyy;
+    document.getElementById('p-date').innerText = currentDate;
+
+        // Income Calculation
+        const agri = parseInt(document.getElementById('in-agri').value) || 0;
+        const biz = parseInt(document.getElementById('in-biz').value) || 0;
+        const other = parseInt(document.getElementById('in-other').value) || 0;
+        const total = agri + biz + other;
+        
+        document.getElementById('p-total').innerText = total;
+        document.getElementById('p-words').innerText = numToWords(total);
+        document.getElementById('p-sign-name').innerText = document.getElementById('in-name').value;
+        document.getElementById('p-loc').innerText = document.getElementById('in-village').value;
+
+        // Signature Show
+        const sigFile = document.getElementById('in-sig').files[0];
+        if (sigFile) {
+            document.getElementById('sig-img').src = URL.createObjectURL(sigFile);
+            document.getElementById('sig-img').style.display = "block";
+        }
+
+        // UI Switch
+        document.getElementById('form-ui').style.display = 'none';
+        document.getElementById('preview-section').style.display = 'block';
+        window.scrollTo(0,0);
+    }
+
+    function back() {
+        document.getElementById('form-ui').style.display = 'block';
+        document.getElementById('preview-section').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
