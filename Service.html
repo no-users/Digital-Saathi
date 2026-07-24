@@ -420,7 +420,7 @@
 
         <!-- RECENT HUB BAR -->
         <div class="recent-bar-container">
-            <div class="recent-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Hub:</div>
+            <div class="recent-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent:</div>
             <div class="recent-pills-list" id="recentPillsContainer">
                 <div class="recent-pill" onclick="handleCardClick('Passport Photo Maker', 'https://image.pi7.org/passport-size-photo-maker', 'iframe')"><i class="fa-solid fa-id-card"></i> Passport Photo</div>
                 <div class="recent-pill" onclick="handleCardClick('Merge PDF', 'https://www.ilovepdf.com/merge_pdf', 'iframe')"><i class="fa-solid fa-object-group"></i> Merge PDF</div>
@@ -501,7 +501,7 @@
 
                 <label>Category Section:</label>
                 <select id="newCardCategory" style="padding:8px; border-radius:8px; border:1px solid var(--border-color); background:var(--topbar-bg); color:var(--text-main);">
-                    <option value="Pi7 Image Editing & Precise Size Compression Suite">Pi7 Image Editing Suite</option>
+                    <option value="Pi7 Image Editing & Precise Size Compression Suite">Image Editing </option>
                     <option value="Exact Target Size Compression & Conversion">Exact Target Size Compression</option>
                     <option value="Complete PDF Processing Tools (iLovePDF)">Complete PDF Tools</option>
                 </select>
@@ -603,37 +603,38 @@
                 ]
             },
             {
-                category: "Complete PDF Processing Tools (iLovePDF)",
-                tools: [
-                    { name: "Merge PDF", desc: "Combine multiple PDF files into one clean unified document.", url: "https://www.ilovepdf.com/merge_pdf", mode: "iframe", badge: "Essential", icon: "fa-object-group" },
-                    { name: "Split PDF", desc: "Separate pages or extract custom ranges into independent files.", url: "https://www.ilovepdf.com/split_pdf", mode: "iframe", badge: "", icon: "fa-scissors" },
-                    { name: "Compress PDF", desc: "Reduce file size while optimizing for maximal PDF quality.", url: "https://www.ilovepdf.com/compress_pdf", mode: "iframe", badge: "Popular", icon: "fa-file-arrow-down" },
-                    { name: "PDF to Word", desc: "Easily convert your PDF files into editable DOC/DOCX documents.", url: "https://www.ilovepdf.com/pdf_to_word", mode: "iframe", badge: "", icon: "fa-file-word" },
-                    { name: "PDF to PowerPoint", desc: "Turn your PDF files into editable presentation slideshows.", url: "https://www.ilovepdf.com/pdf_to_powerpoint", mode: "iframe", badge: "", icon: "fa-file-powerpoint" },
-                    { name: "PDF to Excel", desc: "Pull data straight from PDFs into crisp Excel spreadsheets.", url: "https://www.ilovepdf.com/pdf_to_excel", mode: "iframe", badge: "", icon: "fa-file-excel" },
-                    { name: "Word to PDF", desc: "Make DOC and DOCX files easy to read by converting to PDF.", url: "https://www.ilovepdf.com/word_to_pdf", mode: "iframe", badge: "", icon: "fa-file-lines" },
-                    { name: "Edit PDF", desc: "Add text, images, shapes or freehand annotations to documents.", url: "https://www.ilovepdf.com/edit-pdf", mode: "iframe", badge: "", icon: "fa-pen-to-square" },
-                    { name: "PDF to JPG", desc: "Convert each PDF page into a high-res JPG image file.", url: "https://www.ilovepdf.com/pdf_to_jpg", mode: "iframe", badge: "", icon: "fa-file-image" },
-                    { name: "JPG to PDF", desc: "Convert multiple JPG images to PDF with orientation controls.", url: "https://www.ilovepdf.com/jpg_to_pdf", mode: "iframe", badge: "", icon: "fa-images" },
-                    { name: "Sign PDF", desc: "Add secure digital signatures to your documents.", url: "https://www.ilovepdf.com/sign_pdf", mode: "iframe", badge: "", icon: "fa-signature" },
-                    { name: "Watermark PDF", desc: "Stamp text or logo watermarks over your PDF files.", url: "https://www.ilovepdf.com/pdf_watermark", mode: "iframe", badge: "", icon: "fa-stamp" },
-                    { name: "Rotate PDF", desc: "Fix page orientations for multiple PDF files in bulk.", url: "https://www.ilovepdf.com/rotate_pdf", mode: "iframe", badge: "", icon: "fa-rotate-right" },
-                    { name: "Unlock PDF", desc: "Remove PDF password restrictions to regain full access.", url: "https://www.ilovepdf.com/unlock_pdf", mode: "iframe", badge: "", icon: "fa-unlock" },
-                    { name: "Protect PDF", desc: "Encrypt sensitive PDF files with password security.", url: "https://www.ilovepdf.com/protect_pdf", mode: "iframe", badge: "", icon: "fa-lock" },
-                    { name: "Organize PDF", desc: "Sort, rearrange, or delete pages in your document sequence.", url: "https://www.ilovepdf.com/organize_pdf", mode: "iframe", badge: "", icon: "fa-folder-tree" },
-                    { name: "Repair PDF", desc: "Recover data from corrupted or damaged PDF documents.", url: "https://www.ilovepdf.com/repair_pdf", mode: "iframe", badge: "", icon: "fa-screwdriver-wrench" },
-                    { name: "Page numbers", desc: "Insert sequential page numbers into PDFs easily.", url: "https://www.ilovepdf.com/add_pdf_page_number", mode: "iframe", badge: "", icon: "fa-list-ol" },
-                    { name: "Scan to PDF", desc: "Compile camera captures or scans into a clean PDF document.", url: "https://www.ilovepdf.com/scan-pdf", mode: "iframe", badge: "", icon: "fa-camera" },
-                    { name: "OCR PDF", desc: "Extract searchable and selectable text from scans or images.", url: "https://www.ilovepdf.com/ocr_pdf", mode: "iframe", badge: "AI", icon: "fa-font" },
-                    { name: "Compare PDF", desc: "Highlight differences between two document versions side-by-side.", url: "https://www.ilovepdf.com/compare-pdf", mode: "iframe", badge: "", icon: "fa-columns" },
-                    { name: "Redact PDF", desc: "Permanently blackout confidential information from documents.", url: "https://www.ilovepdf.com/redact-pdf", mode: "iframe", badge: "", icon: "fa-marker" },
-                    { name: "Crop PDF", desc: "Trim unnecessary margins and resize page bounds.", url: "https://www.ilovepdf.com/crop-pdf", mode: "iframe", badge: "", icon: "fa-crop-simple" },
-                    { name: "PDF Forms", desc: "Design interactive fillable form fields and checkboxes.", url: "https://www.ilovepdf.com/pdf-forms", mode: "iframe", badge: "New", icon: "fa-square-check" },
-                    { name: "AI Summarizer", desc: "Quickly generate concise takeaways from long documents.", url: "https://www.ilovepdf.com/ai-summarizer", mode: "iframe", badge: "AI", icon: "fa-brain" },
-                    { name: "Translate PDF", desc: "Translate complete PDF text into multiple languages.", url: "https://www.ilovepdf.com/translate-pdf", mode: "iframe", badge: "AI", icon: "fa-language" },
-                    { name: "PDF to Markdown", desc: "Turn PDF files into Markdown documents for notes and LLMs.", url: "https://www.ilovepdf.com/pdf-to-markdown", mode: "iframe", badge: "New", icon: "fa-markdown" }
-                ]
-            }
+  "category": "Complete PDF Processing Tools (iLovePDF)",
+  "tools": [
+    { "name": "Merge PDF", "desc": "Combine multiple PDF files into one clean unified document.", "url": "https://www.ilovepdf.com/merge_pdf", "target": "_blank", "badge": "Essential", "icon": "fa-object-group" },
+    { "name": "Split PDF", "desc": "Separate pages or extract custom ranges into independent files.", "url": "https://www.ilovepdf.com/split_pdf", "target": "_blank", "badge": "", "icon": "fa-scissors" },
+    { "name": "Compress PDF", "desc": "Reduce file size while optimizing for maximal PDF quality.", "url": "https://www.ilovepdf.com/compress_pdf", "target": "_blank", "badge": "Popular", "icon": "fa-file-arrow-down" },
+    { "name": "PDF to Word", "desc": "Easily convert your PDF files into editable DOC/DOCX documents.", "url": "https://www.ilovepdf.com/pdf_to_word", "target": "_blank", "badge": "", "icon": "fa-file-word" },
+    { "name": "PDF to PowerPoint", "desc": "Turn your PDF files into editable presentation slideshows.", "url": "https://www.ilovepdf.com/pdf_to_powerpoint", "target": "_blank", "badge": "", "icon": "fa-file-powerpoint" },
+    { "name": "PDF to Excel", "desc": "Pull data straight from PDFs into crisp Excel spreadsheets.", "url": "https://www.ilovepdf.com/pdf_to_excel", "target": "_blank", "badge": "", "icon": "fa-file-excel" },
+    { "name": "Word to PDF", "desc": "Make DOC and DOCX files easy to read by converting to PDF.", "url": "https://www.ilovepdf.com/word_to_pdf", "target": "_blank", "badge": "", "icon": "fa-file-lines" },
+    { "name": "Edit PDF", "desc": "Add text, images, shapes or freehand annotations to documents.", "url": "https://www.ilovepdf.com/edit-pdf", "target": "_blank", "badge": "", "icon": "fa-pen-to-square" },
+    { "name": "PDF to JPG", "desc": "Convert each PDF page into a high-res JPG image file.", "url": "https://www.ilovepdf.com/pdf_to_jpg", "target": "_blank", "badge": "", "icon": "fa-file-image" },
+    { "name": "JPG to PDF", "desc": "Convert multiple JPG images to PDF with orientation controls.", "url": "https://www.ilovepdf.com/jpg_to_pdf", "target": "_blank", "badge": "", "icon": "fa-images" },
+    { "name": "Sign PDF", "desc": "Add secure digital signatures to your documents.", "url": "https://www.ilovepdf.com/sign_pdf", "target": "_blank", "badge": "", "icon": "fa-signature" },
+    { "name": "Watermark PDF", "desc": "Stamp text or logo watermarks over your PDF files.", "url": "https://www.ilovepdf.com/pdf_watermark", "target": "_blank", "badge": "", "icon": "fa-stamp" },
+    { "name": "Rotate PDF", "desc": "Fix page orientations for multiple PDF files in bulk.", "url": "https://www.ilovepdf.com/rotate_pdf", "target": "_blank", "badge": "", "icon": "fa-rotate-right" },
+    { "name": "Unlock PDF", "desc": "Remove PDF password restrictions to regain full access.", "url": "https://www.ilovepdf.com/unlock_pdf", "target": "_blank", "badge": "", "icon": "fa-unlock" },
+    { "name": "Protect PDF", "desc": "Encrypt sensitive PDF files with password security.", "url": "https://www.ilovepdf.com/protect_pdf", "target": "_blank", "badge": "", "icon": "fa-lock" },
+    { "name": "Organize PDF", "desc": "Sort, rearrange, or delete pages in your document sequence.", "url": "https://www.ilovepdf.com/organize_pdf", "target": "_blank", "badge": "", "icon": "fa-folder-tree" },
+    { "name": "Repair PDF", "desc": "Recover data from corrupted or damaged PDF documents.", "url": "https://www.ilovepdf.com/repair_pdf", "target": "_blank", "badge": "", "icon": "fa-screwdriver-wrench" },
+    { "name": "Page numbers", "desc": "Insert sequential page numbers into PDFs easily.", "url": "https://www.ilovepdf.com/add_pdf_page_number", "target": "_blank", "badge": "", "icon": "fa-list-ol" },
+    { "name": "Scan to PDF", "desc": "Compile camera captures or scans into a clean PDF document.", "url": "https://www.ilovepdf.com/scan-pdf", "target": "_blank", "badge": "", "icon": "fa-camera" },
+    { "name": "OCR PDF", "desc": "Extract searchable and selectable text from scans or images.", "url": "https://www.ilovepdf.com/ocr_pdf", "target": "_blank", "badge": "AI", "icon": "fa-font" },
+    { "name": "Compare PDF", "desc": "Highlight differences between two document versions side-by-side.", "url": "https://www.ilovepdf.com/compare-pdf", "target": "_blank", "badge": "", "icon": "fa-columns" },
+    { "name": "Redact PDF", "desc": "Permanently blackout confidential information from documents.", "url": "https://www.ilovepdf.com/redact-pdf", "target": "_blank", "badge": "", "icon": "fa-marker" },
+    { "name": "Crop PDF", "desc": "Trim unnecessary margins and resize page bounds.", "url": "https://www.ilovepdf.com/crop-pdf", "target": "_blank", "badge": "", "icon": "fa-crop-simple" },
+    { "name": "PDF Forms", "desc": "Design interactive fillable form fields and checkboxes.", "url": "https://www.ilovepdf.com/pdf-forms", "target": "_blank", "badge": "New", "icon": "fa-square-check" },
+    { "name": "AI Summarizer", "desc": "Quickly generate concise takeaways from long documents.", "url": "https://www.ilovepdf.com/ai-summarizer", "target": "_blank", "badge": "AI", "icon": "fa-brain" },
+    { "name": "Translate PDF", "desc": "Translate complete PDF text into multiple languages.", "url": "https://www.ilovepdf.com/translate-pdf", "target": "_blank", "badge": "AI", "icon": "fa-language" },
+    { "name": "PDF to Markdown", "desc": "Turn PDF files into Markdown documents for notes and LLMs.", "url": "https://www.ilovepdf.com/pdf-to-markdown", "target": "_blank", "badge": "New", "icon": "fa-markdown" }
+  ]
+}
+
         ];
 
         let currentCategoryFilter = 'all';
