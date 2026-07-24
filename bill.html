@@ -337,14 +337,14 @@
             <div class="logo-text">DIGITAL<br>SAATHI</div>
        </a>
 
-              <nav>
-    <a onclick="playClickSound(); window.open('saathi.html', )" class="active" id="nav-home">Home</a>
-    <a onclick="playClickSound(); window.open('file.html',)" id="nav-files">Files</a>
-    <a onclick="playClickSound(); window.open('bill.html', )" id="nav-contact">Biling</a>
-    <a onclick="playClickSound(); window.open('Service.html', )" id="nav-service">Service</a>
-    <a onclick="playClickSound(); window.open('photo.html',)" id="nav-login">Resize</a>
-           <a onclick="playClickSound(); window.open('Form.html', )" id="nav-login">Income</a>
-</nav>
+        <nav>
+             <a href="Saathi.html" onclick="playClickSound()" id="nav-home">Home</a>
+             <a href="file.html" onclick="playClickSound()" id="nav-files">Files</a>
+             <a href="bill.html" onclick="handleNavClick('Contact')" class="active" id="nav-contact">Billing</a>
+             <a href="Service.html" onclick="handleNavClick('Our Service')" id="nav-service">Service</a>
+             <a href="photo.html" onclick="handleNavClick('Contact')" class="active" id="nav-contact">Resize</a>
+             <a href="form.html" onclick="handleNavClick('Our Service')" id="nav-service">Income</a>
+        </nav>
 
         <div class="header-actions">
             <div class="visualizer-bars" id="visualizerBars"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
