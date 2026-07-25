@@ -259,6 +259,7 @@
         }
         .search-bar-wrapper input:focus { border-color: var(--primary-color); box-shadow: 0 15px 30px rgba(255,107,107,0.2); }
         .search-bar-wrapper i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.1rem; }
+        .search-shortcut-hint { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); background: var(--topbar-bg); border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 6px; font-size: 0.68rem; color: var(--text-muted); }
 
         .quick-filter-pills { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 800px; }
         .filter-btn {
@@ -289,9 +290,40 @@
         .utility-card h3 { font-size: 1rem; font-weight: 700; color: var(--text-main); }
         .utility-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
         .utility-card-badge {
-            position: absolute; top: 16px; right: 16px; background: var(--topbar-bg);
+            position: absolute; top: 16px; right: 65px; background: var(--topbar-bg);
             border: 1px solid var(--border-color); font-size: 0.65rem; font-weight: 700; padding: 3px 7px; border-radius: 6px; color: var(--primary-color);
         }
+        .utility-favorite-star {
+            position: absolute; top: 16px; right: 40px; font-size: 1rem; color: var(--text-muted); cursor: pointer;
+        }
+        .utility-favorite-star.bookmarked { color: #f59e0b; }
+
+        /* Live Status Blinking Indicator at Corner */
+        .card-status-indicator {
+            position: absolute; top: 18px; right: 16px; width: 10px; height: 10px; border-radius: 50%;
+        }
+        .card-status-indicator.active {
+            background-color: #10b981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulseBlink 1.5s infinite;
+        }
+        .card-status-indicator.inactive {
+            background-color: #ef4444;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        }
+        @keyframes pulseBlink {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Advanced Drag & Drop Fullscreen Overlay */
+        #globalDropOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px);
+            z-index: 5000; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 15px; color: #fff;
+            border: 4px dashed var(--primary-color);
+        }
+        #globalDropOverlay.active { display: flex; }
 
         /* Footer & Control Buttons */
         footer { background-color: #0f172a; color: #ffffff; padding: 3rem 3rem 1.5rem 3rem; border-top: 4px solid var(--primary-color); }
@@ -332,7 +364,14 @@
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleGlobalFileDrop(event)">
+
+    <!-- Advanced Fullscreen Drag Overlay -->
+    <div id="globalDropOverlay">
+        <i class="fa-solid fa-cloud-arrow-down fa-bounce" style="font-size: 4rem; color: var(--primary-color);"></i>
+        <h2 style="font-size: 1.5rem; font-weight: 800;">Drop Your File Anywhere to Process!</h2>
+        <p style="color: #94a3b8; font-size: 0.9rem;">Release to open intelligent action suite...</p>
+    </div>
 
     <!-- Header Navbar -->
     <header>
@@ -347,8 +386,8 @@
             <a href="file.html" onclick="playClickSound()"  id="nav-files">File</a>
             <a href="bill.html" onclick="handleNavClick('Contact')" id="nav-contact">Billing</a>
             <a  href="Service.html" onclick="handleNavClick('Our Service')" class="active" id="nav-service">Service</a>
-           <a  href="photo.html" onclick="handleNavClick('Our Service')" class="active" id="nav-service">Resize</a>
-            <a  href="form.html" onclick="handleNavClick('Our Service')" class="active" id="nav-service">Income</a>
+           <a  href="photo.html" onclick="handleNavClick('Our Service')"  id="nav-service">Resize</a>
+            <a  href="form.html" onclick="handleNavClick('Our Service')"  id="nav-service">Income</a>
         </nav>
 
         <div class="header-actions">
@@ -423,7 +462,7 @@
             <div class="recent-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent:</div>
             <div class="recent-pills-list" id="recentPillsContainer">
                 <div class="recent-pill" onclick="handleCardClick('Passport Photo Maker', 'https://image.pi7.org/passport-size-photo-maker', 'iframe')"><i class="fa-solid fa-id-card"></i> Passport Photo</div>
-                <div class="recent-pill" onclick="handleCardClick('Merge PDF', 'https://www.ilovepdf.com/merge_pdf', 'iframe')"><i class="fa-solid fa-object-group"></i> Merge PDF</div>
+                <div class="recent-pill" onclick="handleCardClick('Merge PDF', 'https://www.ilovepdf.com/merge_pdf', 'newtab')"><i class="fa-solid fa-object-group"></i> Merge PDF</div>
             </div>
         </div>
 
@@ -431,11 +470,13 @@
         <div class="search-filter-container">
             <div class="search-bar-wrapper">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="toolSearchInput" onkeyup="filterTools()" placeholder="Search any tool (e.g. passport, 50kb, resize, merge, compress, OCR)...">
+                <input type="text" id="toolSearchInput" onkeyup="filterTools()" placeholder="Start Search ......">
+                <div class="search-shortcut-hint">Ctrl + K</div>
             </div>
             <!-- Quick Category Filter Buttons -->
             <div class="quick-filter-pills">
                 <button class="filter-btn active" onclick="filterByCategory('all', this)"><i class="fa-solid fa-border-all"></i> All Tools</button>
+                <button class="filter-btn" onclick="filterByCategory('favorites', this)"><i class="fa-solid fa-star" style="color:#f59e0b;"></i> Favorites</button>
                 <button class="filter-btn" onclick="filterByCategory('Pi7 Image Editing & Precise Size Compression Suite', this)"><i class="fa-solid fa-image"></i> Image Tools</button>
                 <button class="filter-btn" onclick="filterByCategory('Exact Target Size Compression & Conversion', this)"><i class="fa-solid fa-bullseye"></i> Target Img (KB)</button>
                 <button class="filter-btn" onclick="filterByCategory('Complete PDF Processing Tools (iLovePDF)', this)"><i class="fa-solid fa-file-pdf"></i> PDF Tools</button>
@@ -445,6 +486,32 @@
         <!-- PERMANENT CARDS CONTAINER -->
         <div id="dynamicCardsContainer"></div>
     </section>
+
+    <!-- ADVANCED FILE DROP ACTION MODAL -->
+    <div class="modal-overlay" id="fileDropModal">
+        <div class="modal-box" style="text-align: center; max-width: 480px;">
+            <div style="width: 55px; height: 55px; background: rgba(255,107,107,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; color: var(--primary-color); font-size: 1.4rem;">
+                <i class="fa-solid fa-file-circle-check" id="dropTypeIcon"></i>
+            </div>
+            <h3 style="margin-bottom: 4px; color: var(--text-main); font-size: 1.1rem;">File Received Successfully!</h3>
+            <div id="droppedFileName" style="color: var(--primary-color); font-weight: 700; font-size: 0.9rem; margin-bottom: 4px;"></div>
+            <div id="droppedFileSize" style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 16px;"></div>
+            
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Select Preferred Operation </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; padding-right: 4px;" id="dropActionList">
+                <button onclick="executeDroppedAction('https://image.pi7.org/reduce-image-size-in-kb', 'Reduce Image Size in KB', 'iframe')" style="background:var(--topbar-bg); border:1px solid var(--border-color); color:var(--text-main); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; font-size:0.82rem; text-align:left; display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-compress" style="color:var(--primary-color);"></i> Compress Image Size in KB</button>
+                <button onclick="executeDroppedAction('https://image.pi7.org/passport-size-photo-maker', 'Passport Photo Maker', 'iframe')" style="background:var(--topbar-bg); border:1px solid var(--border-color); color:var(--text-main); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; font-size:0.82rem; text-align:left; display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-id-card" style="color:var(--primary-color);"></i> Make Passport Size Photo</button>
+                <button onclick="executeDroppedAction('https://image.pi7.org/image-to-pdf', 'Image to PDF Converter', 'iframe')" style="background:var(--topbar-bg); border:1px solid var(--border-color); color:var(--text-main); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; font-size:0.82rem; text-align:left; display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-file-pdf" style="color:var(--primary-color);"></i> Convert Image to PDF</button>
+                <button onclick="executeDroppedAction('https://www.ilovepdf.com/merge_pdf', 'Merge PDF', 'newtab')" style="background:var(--topbar-bg); border:1px solid var(--border-color); color:var(--text-main); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; font-size:0.82rem; text-align:left; display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-object-group" style="color:var(--primary-color);"></i> Merge PDF Files</button>
+                <button onclick="executeDroppedAction('https://www.ilovepdf.com/compress_pdf', 'Compress PDF', 'newtab')" style="background:var(--topbar-bg); border:1px solid var(--border-color); color:var(--text-main); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; font-size:0.82rem; text-align:left; display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-file-arrow-down" style="color:var(--primary-color);"></i> Compress PDF Document</button>
+            </div>
+            
+            <div style="margin-top: 16px;">
+                <button class="close-modal-btn" onclick="closeFileDropModal()">Cancel Action</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer Controls with Admin Buttons -->
     <footer>
@@ -501,8 +568,8 @@
 
                 <label>Category Section:</label>
                 <select id="newCardCategory" style="padding:8px; border-radius:8px; border:1px solid var(--border-color); background:var(--topbar-bg); color:var(--text-main);">
-                    <option value="Pi7 Image Editing & Precise Size Compression Suite">Image Editing </option>
-                    <option value="Exact Target Size Compression & Conversion">Exact Target Size Compression</option>
+                    <option value="Image Editing & Precise Size Compression ">Image Editing </option>
+                    <option value="Exact Target Size Compression & Conversion">Target Size Compression</option>
                     <option value="Complete PDF Processing Tools (iLovePDF)">Complete PDF Tools</option>
                 </select>
             </div>
@@ -574,107 +641,265 @@
         // =========================================================================================
         const permanentToolsData = [
             {
-                category: "Pi7 Image Editing & Precise Size Compression Suite",
+                category: "Image Editing & Precise Size Compression ",
                 tools: [
-                    { name: "Passport Photo Maker", desc: "Create professional passport size photos with custom backgrounds.", url: "https://image.pi7.org/passport-size-photo-maker", mode: "iframe", badge: "Popular", icon: "fa-id-card" },
-                    { name: "Reduce Image Size in KB", desc: "Accurately shrink image file sizes to precise KB limits.", url: "https://image.pi7.org/reduce-image-size-in-kb", mode: "iframe", badge: "Essential", icon: "fa-compress" },
-                    { name: "Resize Image Pixel", desc: "Define exact pixel dimensions for image width and height.", url: "https://image.pi7.org/resize-image-pixel", mode: "iframe", badge: "", icon: "fa-expand" },
-                    { name: "Photo Collage Maker", desc: "Combine multiple pictures into creative custom collages.", url: "https://image.pi7.org/photo-collage-maker", mode: "iframe", badge: "", icon: "fa-object-ungroup" },
-                    { name: "Generate Signature", desc: "Create digital signatures and resize them for application forms.", url: "https://image.pi7.org/generate-signature", mode: "iframe", badge: "", icon: "fa-signature" },
-                    { name: "Increase Image Size in KB", desc: "Boost image file size when portal requirements demand higher KB.", url: "https://image.pi7.org/increase-image-size-in-kb", mode: "iframe", badge: "", icon: "fa-file-arrow-up" },
-                    { name: "AI Photo Enhancer", desc: "Enhance photo quality and clarity automatically using AI.", url: "https://image.pi7.org/ai-photo-enhancer", mode: "iframe", badge: "AI", icon: "fa-wand-magic-sparkles" },
-                    { name: "Resize Signature", desc: "Scale down signatures specifically for online exams and forms.", url: "https://image.pi7.org/resize-signature", mode: "iframe", badge: "", icon: "fa-pen-nib" },
-                    { name: "Blur Background", desc: "Apply portrait blur effect to photo backgrounds instantly.", url: "https://image.pi7.org/blur-background", mode: "iframe", badge: "", icon: "fa-camera-retro" },
-                    { name: "Remove Background", desc: "Erase photo backgrounds with high precision automatically.", url: "https://image.pi7.org/remove-background", mode: "iframe", badge: "AI", icon: "fa-user-slash" },
-                    { name: "Remove Object from Photo", desc: "Clean up unwanted objects or people from your pictures.", url: "https://image.pi7.org/remove-image-object", mode: "iframe", badge: "", icon: "fa-eraser" },
-                    { name: "Add Name & DOB on Photo", desc: "Stamp candidate name and date of birth neatly on photo for exams.", url: "https://image.pi7.org/add-name-and-dob-on-photo", mode: "iframe", badge: "Exam", icon: "fa-address-card" },
-                    { name: "Rotate Image", desc: "Fix photo orientations at 90, 180, or 270 degrees easily.", url: "https://image.pi7.org/rotate-image", mode: "iframe", badge: "", icon: "fa-rotate" },
-                    { name: "Watermark Images", desc: "Stamp protective text or logo watermarks over images.", url: "https://image.pi7.org/watermark-images", mode: "iframe", badge: "", icon: "fa-stamp" },
-                    { name: "OCR Image Text Extractor", desc: "Extract readable text from image files instantly.", url: "https://image.pi7.org/ocr-image", mode: "iframe", badge: "AI", icon: "fa-font" }
+                    { name: "Passport Photo Maker", desc: "Create professional passport size photos with custom backgrounds.", url: "https://image.pi7.org/passport-size-photo-maker", mode: "iframe", badge: "Popular", icon: "fa-id-card", active: true },
+                    { name: "Reduce Image Size in KB", desc: "Accurately shrink image file sizes to precise KB limits.", url: "https://image.pi7.org/reduce-image-size-in-kb", mode: "iframe", badge: "Essential", icon: "fa-compress", active: true },
+                    { name: "Resize Image Pixel", desc: "Define exact pixel dimensions for image width and height.", url: "https://image.pi7.org/resize-image-pixel", mode: "iframe", badge: "", icon: "fa-expand", active: true },
+                    { name: "Photo Collage Maker", desc: "Combine multiple pictures into creative custom collages.", url: "https://image.pi7.org/photo-collage-maker", mode: "iframe", badge: "", icon: "fa-object-ungroup", active: true },
+                    { name: "Generate Signature", desc: "Create digital signatures and resize them for application forms.", url: "https://image.pi7.org/generate-signature", mode: "iframe", badge: "", icon: "fa-signature", active: true },
+                    { name: "Increase Image Size in KB", desc: "Boost image file size when portal requirements demand higher KB.", url: "https://image.pi7.org/increase-image-size-in-kb", mode: "iframe", badge: "", icon: "fa-file-arrow-up", active: true },
+                    { name: "AI Photo Enhancer", desc: "Enhance photo quality and clarity automatically using AI.", url: "https://image.pi7.org/ai-photo-enhancer", mode: "iframe", badge: "AI", icon: "fa-wand-magic-sparkles", active: true },
+                    { name: "Resize Signature", desc: "Scale down signatures specifically for online exams and forms.", url: "https://image.pi7.org/resize-signature", mode: "iframe", badge: "", icon: "fa-pen-nib", active: true },
+                    { name: "Blur Background", desc: "Apply portrait blur effect to photo backgrounds instantly.", url: "https://image.pi7.org/blur-background", mode: "iframe", badge: "", icon: "fa-camera-retro", active: true },
+                    { name: "Remove Background", desc: "Erase photo backgrounds with high precision automatically.", url: "https://image.pi7.org/remove-background", mode: "iframe", badge: "AI", icon: "fa-user-slash", active: true },
+                    { name: "Remove Object from Photo", desc: "Clean up unwanted objects or people from your pictures.", url: "https://image.pi7.org/remove-image-object", mode: "iframe", badge: "", icon: "fa-eraser", active: false },
+                    { name: "Add Name & DOB on Photo", desc: "Stamp candidate name and date of birth neatly on photo for exams.", url: "https://image.pi7.org/add-name-and-dob-on-photo", mode: "iframe", badge: "Exam", icon: "fa-address-card", active: true },
+                    { name: "Rotate Image", desc: "Fix photo orientations at 90, 180, or 270 degrees easily.", url: "https://image.pi7.org/rotate-image", mode: "iframe", badge: "", icon: "fa-rotate", active: true },
+                    { name: "Watermark Images", desc: "Stamp protective text or logo watermarks over images.", url: "https://image.pi7.org/watermark-images", mode: "iframe", badge: "", icon: "fa-stamp", active: true },
+                    { name: "OCR Image Text Extractor", desc: "Extract readable text from image files instantly.", url: "https://image.pi7.org/ocr-image", mode: "iframe", badge: "AI", icon: "fa-font", active: true }
                 ]
             },
             {
                 category: "Exact Target Size Compression & Conversion",
                 tools: [
-                    { name: "Compress to 50KB", desc: "Exact 50KB compression target for application portals.", url: "https://image.pi7.org/compress-image-to-50kb", mode: "iframe", badge: "50KB", icon: "fa-compress" },
-                    { name: "Compress to 20KB", desc: "Exact 20KB target for signature and photo uploads.", url: "https://image.pi7.org/compress-image-to-20kb", mode: "iframe", badge: "20KB", icon: "fa-compress" },
-                    { name: "Compress to 100KB", desc: "Precise 100KB document photo optimization.", url: "https://image.pi7.org/compress-image-to-100kb", mode: "iframe", badge: "100KB", icon: "fa-compress" },
-                    { name: "Image to PDF Converter", desc: "Convert JPG/PNG pictures into single or multi-page PDFs.", url: "https://image.pi7.org/image-to-pdf", mode: "iframe", badge: "PDF", icon: "fa-file-pdf" }
+                    { name: "Compress to 50KB", desc: "Exact 50KB compression target for application portals.", url: "https://image.pi7.org/compress-image-to-50kb", mode: "iframe", badge: "50KB", icon: "fa-compress", active: true },
+                    { name: "Compress to 20KB", desc: "Exact 20KB target for signature and photo uploads.", url: "https://image.pi7.org/compress-image-to-20kb", mode: "iframe", badge: "20KB", icon: "fa-compress", active: true },
+                    { name: "Compress to 100KB", desc: "Precise 100KB document photo optimization.", url: "https://image.pi7.org/compress-image-to-100kb", mode: "iframe", badge: "100KB", icon: "fa-compress", active: true },
+                    { name: "Image to PDF Converter", desc: "Convert JPG/PNG pictures into single or multi-page PDFs.", url: "https://image.pi7.org/image-to-pdf", mode: "iframe", badge: "PDF", icon: "fa-file-pdf", active: true }
                 ]
             },
             {
-  "category: "Complete PDF Processing Tools (iLovePDF)",
+                category: "Complete PDF Processing Tools (iLovePDF)",
                 tools: [
-                    { name: "Merge PDF", desc: "Combine multiple PDF files into one clean unified document.", url: "https://www.ilovepdf.com/merge_pdf", mode: "newtab", badge: "Essential", icon: "fa-object-group" },
-                    { name: "Split PDF", desc: "Separate pages or extract custom ranges into independent files.", url: "https://www.ilovepdf.com/split_pdf", mode: "newtab", badge: "", icon: "fa-scissors" },
-                    { name: "Compress PDF", desc: "Reduce file size while optimizing for maximal PDF quality.", url: "https://www.ilovepdf.com/compress_pdf", mode: "newtab", badge: "Popular", icon: "fa-file-arrow-down" },
-                    { name: "PDF to Word", desc: "Easily convert your PDF files into editable DOC/DOCX documents.", url: "https://www.ilovepdf.com/pdf_to_word", mode: "newtab", badge: "", icon: "fa-file-word" },
-                    { name: "PDF to PowerPoint", desc: "Turn your PDF files into editable presentation slideshows.", url: "https://www.ilovepdf.com/pdf_to_powerpoint", mode: "newtab", badge: "", icon: "fa-file-powerpoint" },
-                    { name: "PDF to Excel", desc: "Pull data straight from PDFs into crisp Excel spreadsheets.", url: "https://www.ilovepdf.com/pdf_to_excel", mode: "newtab", badge: "", icon: "fa-file-excel" },
-                    { name: "Word to PDF", desc: "Make DOC and DOCX files easy to read by converting to PDF.", url: "https://www.ilovepdf.com/word_to_pdf", mode: "newtab", badge: "", icon: "fa-file-lines" },
-                    { name: "Edit PDF", desc: "Add text, images, shapes or freehand annotations to documents.", url: "https://www.ilovepdf.com/edit-pdf", mode: "newtab", badge: "", icon: "fa-pen-to-square" },
-                    { name: "PDF to JPG", desc: "Convert each PDF page into a high-res JPG image file.", url: "https://www.ilovepdf.com/pdf_to_jpg", mode: "newtab", badge: "", icon: "fa-file-image" },
-                    { name: "JPG to PDF", desc: "Convert multiple JPG images to PDF with orientation controls.", url: "https://www.ilovepdf.com/jpg_to_pdf", mode: "newtab", badge: "", icon: "fa-images" },
-                    { name: "Sign PDF", desc: "Add secure digital signatures to your documents.", url: "https://www.ilovepdf.com/sign_pdf", mode: "newtab", badge: "", icon: "fa-signature" },
-                    { name: "Watermark PDF", desc: "Stamp text or logo watermarks over your PDF files.", url: "https://www.ilovepdf.com/pdf_watermark", mode: "newtab", badge: "", icon: "fa-stamp" },
-                    { name: "Rotate PDF", desc: "Fix page orientations for multiple PDF files in bulk.", url: "https://www.ilovepdf.com/rotate_pdf", mode: "newtab", badge: "", icon: "fa-rotate-right" },
-                    { name: "Unlock PDF", desc: "Remove PDF password restrictions to regain full access.", url: "https://www.ilovepdf.com/unlock_pdf", mode: "newtab", badge: "", icon: "fa-unlock" },
-                    { name: "Protect PDF", desc: "Encrypt sensitive PDF files with password security.", url: "https://www.ilovepdf.com/protect_pdf", mode: "newtab", badge: "", icon: "fa-lock" },
-                    { name: "Organize PDF", desc: "Sort, rearrange, or delete pages in your document sequence.", url: "https://www.ilovepdf.com/organize_pdf", mode: "newtab", badge: "", icon: "fa-folder-tree" },
-                    { name: "Repair PDF", desc: "Recover data from corrupted or damaged PDF documents.", url: "https://www.ilovepdf.com/repair_pdf", mode: "newtab", badge: "", icon: "fa-screwdriver-wrench" },
-                    { name: "Page numbers", desc: "Insert sequential page numbers into PDFs easily.", url: "https://www.ilovepdf.com/add_pdf_page_number", mode: "newtab", badge: "", icon: "fa-list-ol" },
-                    { name: "Scan to PDF", desc: "Compile camera captures or scans into a clean PDF document.", url: "https://www.ilovepdf.com/scan-pdf", mode: "newtab", badge: "", icon: "fa-camera" },
-                    { name: "OCR PDF", desc: "Extract searchable and selectable text from scans or images.", url: "https://www.ilovepdf.com/ocr_pdf", mode: "newtab", badge: "AI", icon: "fa-font" },
-                    { name: "Compare PDF", desc: "Highlight differences between two document versions side-by-side.", url: "https://www.ilovepdf.com/compare-pdf", mode: "newtab", badge: "", icon: "fa-columns" },
-                    { name: "Redact PDF", desc: "Permanently blackout confidential information from documents.", url: "https://www.ilovepdf.com/redact-pdf", mode: "newtab", badge: "", icon: "fa-marker" },
-                    { name: "Crop PDF", desc: "Trim unnecessary margins and resize page bounds.", url: "https://www.ilovepdf.com/crop-pdf", mode: "newtab", badge: "", icon: "fa-crop-simple" },
-                    { name: "PDF Forms", desc: "Design interactive fillable form fields and checkboxes.", url: "https://www.ilovepdf.com/pdf-forms", mode: "newtab", badge: "New", icon: "fa-square-check" },
-                    { name: "AI Summarizer", desc: "Quickly generate concise takeaways from long documents.", url: "https://www.ilovepdf.com/ai-summarizer", mode: "newtab", badge: "AI", icon: "fa-brain" },
-                    { name: "Translate PDF", desc: "Translate complete PDF text into multiple languages.", url: "https://www.ilovepdf.com/translate-pdf", mode: "newtab", badge: "AI", icon: "fa-language" },
-                    { name: "PDF to Markdown", desc: "Turn PDF files into Markdown documents for notes and LLMs.", url: "https://www.ilovepdf.com/pdf-to-markdown", mode: "newtab", badge: "New", icon: "fa-markdown" }
+                    { name: "Merge PDF", desc: "Combine multiple PDF files into one clean unified document.", url: "https://www.ilovepdf.com/merge_pdf", mode: "newtab", badge: "Essential", icon: "fa-object-group", active: true },
+                    { name: "Split PDF", desc: "Separate pages or extract custom ranges into independent files.", url: "https://www.ilovepdf.com/split_pdf", mode: "newtab", badge: "", icon: "fa-scissors", active: true },
+                    { name: "Compress PDF", desc: "Reduce file size while optimizing for maximal PDF quality.", url: "https://www.ilovepdf.com/compress_pdf", mode: "newtab", badge: "Popular", icon: "fa-file-arrow-down", active: true },
+                    { name: "PDF to Word", desc: "Easily convert your PDF files into editable DOC/DOCX documents.", url: "https://www.ilovepdf.com/pdf_to_word", mode: "newtab", badge: "", icon: "fa-file-word", active: true },
+                    { name: "PDF to PowerPoint", desc: "Turn your PDF files into editable presentation slideshows.", url: "https://www.ilovepdf.com/pdf_to_powerpoint", mode: "newtab", badge: "", icon: "fa-file-powerpoint", active: true },
+                    { name: "PDF to Excel", desc: "Pull data straight from PDFs into crisp Excel spreadsheets.", url: "https://www.ilovepdf.com/pdf_to_excel", mode: "newtab", badge: "", icon: "fa-file-excel", active: true },
+                    { name: "Word to PDF", desc: "Make DOC and DOCX files easy to read by converting to PDF.", url: "https://www.ilovepdf.com/word_to_pdf", mode: "newtab", badge: "", icon: "fa-file-lines", active: true },
+                    { name: "Edit PDF", desc: "Add text, images, shapes or freehand annotations to documents.", url: "https://www.ilovepdf.com/edit-pdf", mode: "newtab", badge: "", icon: "fa-pen-to-square", active: true },
+                    { name: "PDF to JPG", desc: "Convert each PDF page into a high-res JPG image file.", url: "https://www.ilovepdf.com/pdf_to_jpg", mode: "newtab", badge: "", icon: "fa-file-image", active: true },
+                    { name: "JPG to PDF", desc: "Convert multiple JPG images to PDF with orientation controls.", url: "https://www.ilovepdf.com/jpg_to_pdf", mode: "newtab", badge: "", icon: "fa-images", active: true },
+                    { name: "Sign PDF", desc: "Add secure digital signatures to your documents.", url: "https://www.ilovepdf.com/sign_pdf", mode: "newtab", badge: "", icon: "fa-signature", active: true },
+                    { name: "Watermark PDF", desc: "Stamp text or logo watermarks over your PDF files.", url: "https://www.ilovepdf.com/pdf_watermark", mode: "newtab", badge: "", icon: "fa-stamp", active: true },
+                    { name: "Rotate PDF", desc: "Fix page orientations for multiple PDF files in bulk.", url: "https://www.ilovepdf.com/rotate_pdf", mode: "newtab", badge: "", icon: "fa-rotate-right", active: true },
+                    { name: "Unlock PDF", desc: "Remove PDF password restrictions to regain full access.", url: "https://www.ilovepdf.com/unlock_pdf", mode: "newtab", badge: "", icon: "fa-unlock", active: true },
+                    { name: "Protect PDF", desc: "Encrypt sensitive PDF files with password security.", url: "https://www.ilovepdf.com/protect_pdf", mode: "newtab", badge: "", icon: "fa-lock", active: true },
+                    { name: "Organize PDF", desc: "Sort, rearrange, or delete pages in your document sequence.", url: "https://www.ilovepdf.com/organize_pdf", mode: "newtab", badge: "", icon: "fa-folder-tree", active: true },
+                    { name: "Repair PDF", desc: "Recover data from corrupted or damaged PDF documents.", url: "https://www.ilovepdf.com/repair_pdf", mode: "newtab", badge: "", icon: "fa-screwdriver-wrench", active: false },
+                    { name: "Page numbers", desc: "Insert sequential page numbers into PDFs easily.", url: "https://www.ilovepdf.com/add_pdf_page_number", mode: "newtab", badge: "", icon: "fa-list-ol", active: true },
+                    { name: "Scan to PDF", desc: "Compile camera captures or scans into a clean PDF document.", url: "https://www.ilovepdf.com/scan-pdf", mode: "newtab", badge: "", icon: "fa-camera", active: true },
+                    { name: "OCR PDF", desc: "Extract searchable and selectable text from scans or images.", url: "https://www.ilovepdf.com/ocr_pdf", mode: "newtab", badge: "AI", icon: "fa-font", active: true },
+                    { name: "Compare PDF", desc: "Highlight differences between two document versions side-by-side.", url: "https://www.ilovepdf.com/compare-pdf", mode: "newtab", badge: "", icon: "fa-columns", active: true },
+                    { name: "Redact PDF", desc: "Permanently blackout confidential information from documents.", url: "https://www.ilovepdf.com/redact-pdf", mode: "newtab", badge: "", icon: "fa-marker", active: true },
+                    { name: "Crop PDF", desc: "Trim unnecessary margins and resize page bounds.", url: "https://www.ilovepdf.com/crop-pdf", mode: "newtab", badge: "", icon: "fa-crop-simple", active: true },
+                    { name: "PDF Forms", desc: "Design interactive fillable form fields and checkboxes.", url: "https://www.ilovepdf.com/pdf-forms", mode: "newtab", badge: "New", icon: "fa-square-check", active: true },
+                    { name: "AI Summarizer", desc: "Quickly generate concise takeaways from long documents.", url: "https://www.ilovepdf.com/ai-summarizer", mode: "newtab", badge: "AI", icon: "fa-brain", active: true },
+                    { name: "Translate PDF", desc: "Translate complete PDF text into multiple languages.", url: "https://www.ilovepdf.com/translate-pdf", mode: "newtab", badge: "AI", icon: "fa-language", active: true },
+                    { name: "PDF to Markdown", desc: "Turn PDF files into Markdown documents for notes and LLMs.", url: "https://www.ilovepdf.com/pdf-to-markdown", mode: "newtab", badge: "New", icon: "fa-markdown", active: true }
                 ]
-
-}
-
+            }
         ];
 
         let currentCategoryFilter = 'all';
+        let favoritesList = JSON.parse(localStorage.getItem('ds_favorites') || '[]');
 
-        function renderDashboard() {
+        // --- Vibe Wallpapers / Themes Cycler Function ---
+        const vibeThemes = ['', 'theme-cyberpunk', 'theme-space', 'theme-emerald', 'theme-sunset'];
+        let currentVibeIndex = 0;
+
+        function cycleWallpaperVibe() {
+            // Remove all theme classes first
+            vibeThemes.forEach(theme => {
+                if (theme) document.body.classList.remove(theme);
+            });
+
+            currentVibeIndex = (currentVibeIndex + 1) % vibeThemes.length;
+            let newTheme = vibeThemes[currentVibeIndex];
+
+            if (newTheme) {
+                document.body.classList.add(newTheme);
+                showToast("Vibe Activated", `Switched to ${newTheme.replace('theme-', '').toUpperCase()} mode!`);
+            } else {
+                showToast("Vibe Reset", "Switched back to Default Clean mode.");
+            }
+        }
+
+        function toggleBookmark(toolName, event) {
+            event.stopPropagation();
+            if (favoritesList.includes(toolName)) {
+                favoritesList = favoritesList.filter(name => name !== toolName);
+                showToast("Removed", `${toolName} removed from favorites.`);
+            } else {
+                favoritesList.push(toolName);
+                showToast("Favorited", `${toolName} added to favorites!`);
+            }
+            localStorage.setItem('ds_favorites', JSON.stringify(favoritesList));
+            renderDashboard(document.getElementById('toolSearchInput').value);
+        }
+
+        function renderDashboard(searchQuery = '') {
             const container = document.getElementById('dynamicCardsContainer');
             container.innerHTML = '';
 
-            permanentToolsData.forEach((section, sIndex) => {
-                if (currentCategoryFilter !== 'all' && section.category !== currentCategoryFilter) return;
+            const query = searchQuery.toLowerCase().trim();
 
-                let sectionDiv = document.createElement('div');
-                sectionDiv.innerHTML = `
-                    <div class="utility-section-title"><i class="fa-solid fa-layer-group"></i> ${section.category}</div>
-                    <div class="utility-grid" id="grid-${sIndex}"></div>
-                `;
-                container.appendChild(sectionDiv);
+            if (currentCategoryFilter === 'favorites') {
+                let searchGridDiv = document.createElement('div');
+                searchGridDiv.className = 'utility-grid';
+                container.appendChild(searchGridDiv);
 
-                let grid = document.getElementById(`grid-${sIndex}`);
-                section.tools.forEach((tool, tIndex) => {
-                    let card = document.createElement('div');
-                    card.className = 'utility-card';
-                    card.innerHTML = `
-                        ${tool.badge ? `<div class="utility-card-badge">${tool.badge}</div>` : ''}
-                        <div class="utility-card-icon"><i class="fa-solid ${tool.icon || 'fa-cube'}"></i></div>
-                        <h3>${tool.name}</h3>
-                        <p>${tool.desc}</p>
-                    `;
-                    card.onclick = () => handleCardClick(tool.name, tool.url, tool.mode);
-                    grid.appendChild(card);
+                permanentToolsData.forEach((section) => {
+                    section.tools.forEach((tool) => {
+                        if (favoritesList.includes(tool.name)) {
+                            let isFav = true;
+                            let statusClass = tool.active !== false ? 'active' : 'inactive';
+                            let statusTitle = tool.active !== false ? 'Feature Active (Blinking)' : 'Feature Closed / Inactive';
+                            
+                            let card = document.createElement('div');
+                            card.className = 'utility-card';
+                            card.innerHTML = `
+                                ${tool.badge ? `<div class="utility-card-badge">${tool.badge}</div>` : ''}
+                                <i class="fa-solid fa-star utility-favorite-star ${isFav ? 'bookmarked' : ''}" onclick="toggleBookmark('${tool.name}', event)"></i>
+                                <div class="card-status-indicator ${statusClass}" title="${statusTitle}"></div>
+                                <div class="utility-card-icon"><i class="fa-solid ${tool.icon || 'fa-cube'}"></i></div>
+                                <h3>${tool.name}</h3>
+                                <p>${tool.desc}</p>
+                            `;
+                            card.onclick = () => handleCardClick(tool.name, tool.url, tool.mode);
+                            searchGridDiv.appendChild(card);
+                        }
+                    });
                 });
-            });
+                return;
+            }
+
+            if (query !== '') {
+                let searchGridDiv = document.createElement('div');
+                searchGridDiv.className = 'utility-grid';
+                container.appendChild(searchGridDiv);
+
+                permanentToolsData.forEach((section) => {
+                    section.tools.forEach((tool) => {
+                        let title = tool.name.toLowerCase();
+                        let desc = tool.desc.toLowerCase();
+                        if (title.includes(query) || desc.includes(query)) {
+                            let isFav = favoritesList.includes(tool.name);
+                            let statusClass = tool.active !== false ? 'active' : 'inactive';
+                            let statusTitle = tool.active !== false ? 'Feature Active (Blinking)' : 'Feature Closed / Inactive';
+
+                            let card = document.createElement('div');
+                            card.className = 'utility-card';
+                            card.innerHTML = `
+                                ${tool.badge ? `<div class="utility-card-badge">${tool.badge}</div>` : ''}
+                                <i class="fa-solid fa-star utility-favorite-star ${isFav ? 'bookmarked' : ''}" onclick="toggleBookmark('${tool.name}', event)"></i>
+                                <div class="card-status-indicator ${statusClass}" title="${statusTitle}"></div>
+                                <div class="utility-card-icon"><i class="fa-solid ${tool.icon || 'fa-cube'}"></i></div>
+                                <h3>${tool.name}</h3>
+                                <p>${tool.desc}</p>
+                            `;
+                            card.onclick = () => handleCardClick(tool.name, tool.url, tool.mode);
+                            searchGridDiv.appendChild(card);
+                        }
+                    });
+                });
+            } else {
+                permanentToolsData.forEach((section, sIndex) => {
+                    if (currentCategoryFilter !== 'all' && section.category !== currentCategoryFilter) return;
+
+                    let sectionDiv = document.createElement('div');
+                    sectionDiv.innerHTML = `
+                        <div class="utility-section-title"><i class="fa-solid fa-layer-group"></i> ${section.category}</div>
+                        <div class="utility-grid" id="grid-${sIndex}"></div>
+                    `;
+                    container.appendChild(sectionDiv);
+
+                    let grid = document.getElementById(`grid-${sIndex}`);
+                    section.tools.forEach((tool) => {
+                        let isFav = favoritesList.includes(tool.name);
+                        let statusClass = tool.active !== false ? 'active' : 'inactive';
+                        let statusTitle = tool.active !== false ? 'Feature Active (Blinking)' : 'Feature Closed / Inactive';
+
+                        let card = document.createElement('div');
+                        card.className = 'utility-card';
+                        card.innerHTML = `
+                            ${tool.badge ? `<div class="utility-card-badge">${tool.badge}</div>` : ''}
+                            <i class="fa-solid fa-star utility-favorite-star ${isFav ? 'bookmarked' : ''}" onclick="toggleBookmark('${tool.name}', event)"></i>
+                            <div class="card-status-indicator ${statusClass}" title="${statusTitle}"></div>
+                            <div class="utility-card-icon"><i class="fa-solid ${tool.icon || 'fa-cube'}"></i></div>
+                            <h3>${tool.name}</h3>
+                            <p>${tool.desc}</p>
+                        `;
+                        card.onclick = () => handleCardClick(tool.name, tool.url, tool.mode);
+                        grid.appendChild(card);
+                    });
+                });
+            }
         }
 
-        // --- Quick Category Filter Buttons Logic ---
+        // --- Keyboard Shortcut (Ctrl + K / /) ---
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey && e.key.toLowerCase() === 'k') || e.key === '/') {
+                e.preventDefault();
+                const searchInput = document.getElementById('toolSearchInput');
+                searchInput.focus();
+                showToast("Quick Search", "Search bar focused.");
+            }
+        });
+
+        // --- Advanced Drag & Drop Overlay Logic ---
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('globalDropOverlay').classList.add('active');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            if (e.clientX === 0 && e.clientY === 0) {
+                document.getElementById('globalDropOverlay').classList.remove('active');
+            }
+        }
+
+        function handleGlobalFileDrop(e) {
+            e.preventDefault();
+            document.getElementById('globalDropOverlay').classList.remove('active');
+            
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                let file = e.dataTransfer.files[0];
+                let fileSizeKB = Math.round(file.size / 1024);
+                let fileSizeStr = fileSizeKB > 1024 ? (fileSizeKB / 1024).toFixed(2) + " MB" : fileSizeKB + " KB";
+                
+                document.getElementById('droppedFileName').innerText = file.name;
+                document.getElementById('droppedFileSize').innerText = `Size: ${fileSizeStr} | Type: ${file.type || 'Unknown Document'}`;
+                
+                let iconElem = document.getElementById('dropTypeIcon');
+                if (file.type.includes('pdf')) {
+                    iconElem.className = "fa-solid fa-file-pdf";
+                } else if (file.type.includes('image')) {
+                    iconElem.className = "fa-solid fa-file-image";
+                } else {
+                    iconElem.className = "fa-solid fa-file-lines";
+                }
+
+                document.getElementById('fileDropModal').classList.add('active');
+            }
+        }
+
+        function closeFileDropModal() {
+            document.getElementById('fileDropModal').classList.remove('active');
+        }
+
+        function executeDroppedAction(url, name, mode) {
+            closeFileDropModal();
+            handleCardClick(name, url, mode);
+        }
+
         function filterByCategory(categoryName, btnElement) {
             currentCategoryFilter = categoryName;
+            document.getElementById('toolSearchInput').value = '';
             
-            // Update active state on buttons
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
 
@@ -737,7 +962,7 @@
 
             let sec = permanentToolsData.find(s => s.category === category);
             if(sec) {
-                sec.tools.push({ name: title, desc: desc || "Custom tool utility.", url: url, mode: mode, badge: "Custom", icon: "fa-star" });
+                sec.tools.push({ name: title, desc: desc || "Custom tool utility.", url: url, mode: mode, badge: "Custom", icon: "fa-star", active: true });
             }
 
             renderDashboard();
@@ -819,13 +1044,8 @@
         renderDashboard();
 
         function filterTools() {
-            const query = document.getElementById('toolSearchInput').value.toLowerCase().trim();
-            const cards = document.querySelectorAll('.utility-card');
-            cards.forEach(card => {
-                const title = card.querySelector('h3').innerText.toLowerCase();
-                const desc = card.querySelector('p').innerText.toLowerCase();
-                card.style.display = (title.includes(query) || desc.includes(query)) ? 'flex' : 'none';
-            });
+            const query = document.getElementById('toolSearchInput').value;
+            renderDashboard(query);
         }
 
         function addToRecent(toolName, toolUrl, mode) {
