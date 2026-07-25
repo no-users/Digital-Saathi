@@ -66,13 +66,20 @@
                         </a>
                     </div>
                 </div>
+                
             </div>
 
             <div class="header-actions">
-                <div class="search-box-wrap">
-                    <input type="text" id="toolSearchField" placeholder="Search portals by name...">
-                    <i class="fas fa-search"></i>
-                </div>
+               <div class="search-box-wrap">
+    <!-- Left side purana icon -->
+    <i class="fas fa-search search-left-icon"></i>
+    <!-- Input Field -->
+    <input type="text" id="toolSearchField" placeholder="Search portals by name...">
+</div>
+ <!-- Right side Microphone Button -->
+    <button type="button" id="micSearchBtn" class="mic-icon-btn" title="Search by Voice" onclick="startVoiceSearch()">
+        <i class="fas fa-microphone"></i>
+    </button>
                 <!-- Fixed Admin Button (Removed broken i tag) -->
                 <a href="admin.html" class="btn-admin-route" target="_blank"> Admin</a>
             </div>
@@ -110,7 +117,20 @@
                 </div>
             </div>
 
+        <!-- Sarkari Portals & Recruitment Desks ke upar ye section add karein -->
+            <!-- Recent Portals Section -->
+<div id="recentSectionWrapper" style="margin-bottom: 25px; display: none;">
+    <div class="tools-section-heading" style="border-left-color: #10b981; margin-bottom: 15px;">
+        <i class="fas fa-history" style="margin-right: 8px; color: #10b981;"></i> Recent Used Portals
+    </div>
+    <div class="services-grid-container" id="recentPortalsGrid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+        <!-- Recent cards yahan dynamically inject honge -->
+    </div>
+</div>
+
             <div class="tools-section-heading" id="gridSectionTitle">Sarkari Portals & Recruitment Desks</div>
+                
+
 
             <div class="services-grid-container" id="toolsDisplayGrid">
                 <div id="noResultsMessage" style="display: none;">
@@ -125,7 +145,7 @@
             <button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('active')" 
                     style="display: none; background: none; border: none; font-size: 20px; position: absolute; top: 20px; left: 20px; z-index: 1001;">
                 <i class="fas fa-bars"></i>
-            </button>      
+            </button>       
             
             <!-- Fixed Bottom-Right Floating Action Button Wrapper -->
             <div class="supreme-fab-wrapper" id="supremeFabWrapper">
@@ -143,9 +163,6 @@
                 <button class="supreme-main-fab" onclick="toggleSupremeFab(event)" title="Open Menu">
                     <i class="fas fa-plus" id="supremeFabIcon"></i>
                 </button>
-            </div>
-
-            
             </div>
 
             <div id="calcModal" class="modal">
@@ -171,87 +188,103 @@
         </div>
     </div>
 
-
-
-<!-- Unified Multi-Tab Modal -->
-            <div id="supremeHubModal" class="hub-modal-overlay">
-                <div class="hub-modal-card">
-                    <button class="hub-close-btn" onclick="closeSupremeHubModal()">&times;</button>
-                    <div class="hub-modal-header">
-                        <h2>Digital Saathi</h2>
-                        <p>Calculation tools</p>
+    <!-- Unified Multi-Tab Modal -->
+    <div id="supremeHubModal" class="hub-modal-overlay">
+        <div class="hub-modal-card">
+            <button class="hub-close-btn" onclick="closeSupremeHubModal()">&times;</button>
+            <div class="hub-modal-header">
+                <h2>Digital Saathi</h2>
+                <p>Calculation tools</p>
+            </div>
+            <div class="hub-tabs-row">
+                <button class="hub-tab-btn active" onclick="switchHubTab(event, 'ageTab')"><i class="fas fa-birthday-cake"></i> Age</button>
+                <button class="hub-tab-btn" onclick="switchHubTab(event, 'marksTab')"><i class="fas fa-percent"></i> Marks</button>
+                <button class="hub-tab-btn" onclick="switchHubTab(event, 'pToC')"><i class="fas fa-exchange-alt"></i> % to CGPA</button>
+                <button class="hub-tab-btn" onclick="switchHubTab(event, 'cToP')"><i class="fas fa-graduation-cap"></i> CGPA to %</button>
+                <button class="hub-tab-btn" onclick="switchHubTab(event, 'calcTab')"><i class="fas fa-calculator"></i> Calculate</button>
+            </div>
+            <div class="hub-tab-body">
+                <div id="ageTab" class="hub-tab-pane active">
+                    <div class="hub-input-group">
+                        <label>Select DOB</label>
+                        <input type="date" id="hubDobInput">
                     </div>
-                    <div class="hub-tabs-row">
-                        <button class="hub-tab-btn active" onclick="switchHubTab(event, 'ageTab')"><i class="fas fa-birthday-cake"></i> Age</button>
-                        <button class="hub-tab-btn" onclick="switchHubTab(event, 'marksTab')"><i class="fas fa-percent"></i> Marks</button>
-                        <button class="hub-tab-btn" onclick="switchHubTab(event, 'pToC')"><i class="fas fa-exchange-alt"></i> % to CGPA</button>
-                        <button class="hub-tab-btn" onclick="switchHubTab(event, 'cToP')"><i class="fas fa-graduation-cap"></i> CGPA to %</button>
-                        <button class="hub-tab-btn" onclick="switchHubTab(event, 'calcTab')"><i class="fas fa-calculator"></i> Calculate</button>
+                    <button class="hub-action-btn" onclick="calculateHubAge()">Calculate Age</button>
+                    <div id="hubAgeResult" class="hub-result-box" style="display:none;"></div>
+                </div>
+                <div id="marksTab" class="hub-tab-pane">
+                    <div class="hub-input-group">
+                        <label>Obtained Marks</label>
+                        <input type="number" id="hubObtained" placeholder="enter marks">
                     </div>
-                    <div class="hub-tab-body">
-                        <div id="ageTab" class="hub-tab-pane active">
-                            <div class="hub-input-group">
-                                <label>Select DOB</label>
-                                <input type="date" id="hubDobInput">
-                            </div>
-                            <button class="hub-action-btn" onclick="calculateHubAge()">Calculate Age</button>
-                            <div id="hubAgeResult" class="hub-result-box" style="display:none;"></div>
-                        </div>
-                        <div id="marksTab" class="hub-tab-pane">
-                            <div class="hub-input-group">
-                                <label>Obtained Marks</label>
-                                <input type="number" id="hubObtained" placeholder="enter marks">
-                            </div>
-                            <div class="hub-input-group">
-                                <label>Total Marks</label>
-                                <input type="number" id="hubTotal" placeholder="total marks">
-                            </div>
-                            <button class="hub-action-btn" onclick="calculateHubMarks()">Get Percentage</button>
-                            <div id="hubMarksResult" class="hub-result-box" style="display:none;"></div>
-                        </div>
-                        <div id="pToC" class="hub-tab-pane">
-                            <div class="hub-input-group">
-                                <label>Enter Percentage (%)</label>
-                                <input type="number" id="hubPerInput" step="0.01" placeholder="enter cgpa">
-                            </div>
-                            <button class="hub-action-btn" onclick="calculateHubPerToCgpa()">Get CGPA</button>
-                            <div id="hubPerToCgpaResult" class="hub-result-box" style="display:none;"></div>
-                        </div>
-                        <div id="cToP" class="hub-tab-pane">
-                            <div class="hub-input-group">
-                                <label>Enter CGPA</label>
-                                <input type="number" id="hubCgpaInput" step="0.01" placeholder="enter cgpa">
-                            </div>
-                            <button class="hub-action-btn" onclick="calculateHubCgpaToPer()">Get Percentage</button>
-                            <div id="hubCgpaToPerResult" class="hub-result-box" style="display:none;"></div>
-                        </div>
-                        <div id="calcTab" class="hub-tab-pane">
-                            <input type="text" id="hubCalcScreen" readonly class="hub-calc-screen">
-                            <div class="hub-calc-grid">
-                                <button onclick="hubClear()" class="h-btn ac">Ac</button>
-                                <button onclick="hubAppend('(')" class="h-btn op">(</button>
-                                <button onclick="hubAppend(')')" class="h-btn op">)</button>
-                                <button onclick="hubAppend('/')" class="h-btn op">÷</button>
-                                <button onclick="hubAppend('7')" class="h-btn">7</button>
-                                <button onclick="hubAppend('8')" class="h-btn">8</button>
-                                <button onclick="hubAppend('9')" class="h-btn">9</button>
-                                <button onclick="hubAppend('*')" class="h-btn op">×</button>
-                                <button onclick="hubAppend('4')" class="h-btn">4</button>
-                                <button onclick="hubAppend('5')" class="h-btn">5</button>
-                                <button onclick="hubAppend('6')" class="h-btn">6</button>
-                                <button onclick="hubAppend('-')" class="h-btn op">-</button>
-                                <button onclick="hubAppend('1')" class="h-btn">1</button>
-                                <button onclick="hubAppend('2')" class="h-btn">2</button>
-                                <button onclick="hubAppend('3')" class="h-btn">3</button>
-                                <button onclick="hubAppend('+')" class="h-btn op">+</button>
-                                <button onclick="hubAppend('0')" class="h-btn" style="grid-column: span 2;">0</button>
-                                <button onclick="hubAppend('.')" class="h-btn">.</button>
-                                <button onclick="hubCalculate()" class="h-btn eq">=</button>
-                            </div>
-                        </div>
+                    <div class="hub-input-group">
+                        <label>Total Marks</label>
+                        <input type="number" id="hubTotal" placeholder="total marks">
+                    </div>
+                    <button class="hub-action-btn" onclick="calculateHubMarks()">Get Percentage</button>
+                    <div id="hubMarksResult" class="hub-result-box" style="display:none;"></div>
+                </div>
+                <div id="pToC" class="hub-tab-pane">
+                    <div class="hub-input-group">
+                        <label>Enter Percentage (%)</label>
+                        <input type="number" id="hubPerInput" step="0.01" placeholder="enter cgpa">
+                    </div>
+                    <button class="hub-action-btn" onclick="calculateHubPerToCgpa()">Get CGPA</button>
+                    <div id="hubPerToCgpaResult" class="hub-result-box" style="display:none;"></div>
+                </div>
+                <div id="cToP" class="hub-tab-pane">
+                    <div class="hub-input-group">
+                        <label>Enter CGPA</label>
+                        <input type="number" id="hubCgpaInput" step="0.01" placeholder="enter cgpa">
+                    </div>
+                    <button class="hub-action-btn" onclick="calculateHubCgpaToPer()">Get Percentage</button>
+                    <div id="hubCgpaToPerResult" class="hub-result-box" style="display:none;"></div>
+                </div>
+                <div id="calcTab" class="hub-tab-pane">
+                    <input type="text" id="hubCalcScreen" readonly class="hub-calc-screen">
+                    <div class="hub-calc-grid">
+                        <button onclick="hubClear()" class="h-btn ac">Ac</button>
+                        <button onclick="hubAppend('(')" class="h-btn op">(</button>
+                        <button onclick="hubAppend(')')" class="h-btn op">)</button>
+                        <button onclick="hubAppend('/')" class="h-btn op">÷</button>
+                        <button onclick="hubAppend('7')" class="h-btn">7</button>
+                        <button onclick="hubAppend('8')" class="h-btn">8</button>
+                        <button onclick="hubAppend('9')" class="h-btn">9</button>
+                        <button onclick="hubAppend('*')" class="h-btn op">×</button>
+                        <button onclick="hubAppend('4')" class="h-btn">4</button>
+                        <button onclick="hubAppend('5')" class="h-btn">5</button>
+                        <button onclick="hubAppend('6')" class="h-btn">6</button>
+                        <button onclick="hubAppend('-')" class="h-btn op">-</button>
+                        <button onclick="hubAppend('1')" class="h-btn">1</button>
+                        <button onclick="hubAppend('2')" class="h-btn">2</button>
+                        <button onclick="hubAppend('3')" class="h-btn">3</button>
+                        <button onclick="hubAppend('+')" class="h-btn op">+</button>
+                        <button onclick="hubAppend('0')" class="h-btn" style="grid-column: span 2;">0</button>
+                        <button onclick="hubAppend('.')" class="h-btn">.</button>
+                        <button onclick="hubCalculate()" class="h-btn eq">=</button>
                     </div>
                 </div>
-
+            </div>
+        </div>
+    </div>
+<!--                  -----------------------------------------------------------------------------------------     -->
+                  <!-- ========================================== -->
+<!-- 1. CTRL + K COMMAND PALETTE SECTION        -->
+<!-- ========================================== -->
+<div id="commandPaletteModal" class="cmd-modal-overlay">
+    <div class="cmd-modal-box">
+        <div class="cmd-search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" id="cmdSearchInput" placeholder="Type a command or search portals (Press ESC to close)..." autocomplete="off">
+        </div>
+        <div class="cmd-results-list" id="cmdResultsList"></div>
+        <div class="cmd-modal-footer">
+            <span><kbd>ESC</kbd> to close</span>
+            <span><kbd>↑</kbd> <kbd>↓</kbd> to navigate</span>
+            <span><kbd>ENTER</kbd> to select</span>
+        </div>
+    </div>
+</div>
 
 
     <script src="profile.js"></script>
