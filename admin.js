@@ -1017,39 +1017,43 @@ function addLinkField(name = '', url = '') {
 
 
 // ratin card ka pdf link add krne ke liye ye link banaya gaya hai 
-
- // Page load hote hi admin list load karna
+// Page load hote hi admin list load karna
     window.addEventListener('DOMContentLoaded', loadAdminDriveList);
 
-    let editingDocId = null; // Track karne ke liye ki abhi edit chal raha hai ya nahi
+    let editingDocId = null;
 
     async function loadAdminDriveList() {
         const listContainer = document.getElementById('adminDrivePdfList');
-        listContainer.innerHTML = '<p class="text-xs text-slate-400">Loading...</p>';
+        listContainer.innerHTML = '<p style="font-size: 13px; color: #64748b; text-align: center;">Loading...</p>';
 
         try {
             const snapshot = await db.collection('drive_pdfs').get();
             listContainer.innerHTML = '';
             
             if (snapshot.empty) {
-                listContainer.innerHTML = '<p class="text-xs text-slate-400">Koi bhi PDF link added nahi hai.</p>';
+                listContainer.innerHTML = '<p style="font-size: 13px; color: #64748b; text-align: center;">Koi bhi PDF link added nahi hai.</p>';
                 return;
             }
 
             snapshot.forEach(doc => {
                 const data = doc.data();
-                const portalText = data.portalLink ? `<span class="text-emerald-600 truncate max-w-[200px] block">Portal: ${data.portalLink}</span>` : '';
+                const title = escapeHtml(data.title || '');
+                const driveLink = escapeHtml(data.driveLink || '');
+                const portalLink = escapeHtml(data.portalLink || '');
                 
+                const portalText = data.portalLink ? `<span style="color: #10b981; font-size: 11px; display: block; margin-top: 4px; font-weight: bold;">Portal: ${portalLink}</span>` : '';
+                
+                // 100% Inline CSS for premium look independent of Tailwind
                 listContainer.innerHTML += `
-                    <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs mb-2">
-                        <div class="overflow-hidden">
-                            <span class="font-bold text-slate-800 block">${data.title}</span>
-                            <span class="text-slate-400 truncate max-w-[200px] block">${data.driveLink}</span>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                        <div style="overflow: hidden; width: 100%;">
+                            <span style="font-weight: 700; color: #1e293b; display: block; font-size: 14px; margin-bottom: 2px;">${title}</span>
+                            <span style="color: #64748b; font-size: 11px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${driveLink}</span>
                             ${portalText}
                         </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <button onclick="editDrivePdf('${doc.id}', '${escapeHtml(data.title || '')}', '${escapeHtml(data.driveLink || '')}', '${escapeHtml(data.portalLink || '')}')" class="bg-amber-100 hover:bg-amber-200 text-amber-700 px-2.5 py-1 rounded-lg font-bold transition">Edit</button>
-                            <button onclick="deleteDrivePdf('${doc.id}')" class="bg-red-100 hover:bg-red-200 text-red-600 px-2.5 py-1 rounded-lg font-bold transition">Delete</button>
+                        <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                            <button onclick="editDrivePdf('${doc.id}', '${title}', '${driveLink}', '${portalLink}')" style="background: #f59e0b; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);"><i class="fas fa-edit"></i> Edit</button>
+                            <button onclick="deleteDrivePdf('${doc.id}')" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);"><i class="fas fa-trash-alt"></i> Delete</button>
                         </div>
                     </div>
                 `;
@@ -1059,7 +1063,6 @@ function addLinkField(name = '', url = '') {
         }
     }
 
-    // Firestore database mein title, link aur portal link save ya update karna
     async function saveDrivePdfToDb() {
         const title = document.getElementById('pdfTitleInput').value.trim();
         const driveLink = document.getElementById('pdfDriveLinkInput').value.trim();
@@ -1072,6 +1075,7 @@ function addLinkField(name = '', url = '') {
             return;
         }
 
+        statusText.style.color = "#4f46e5";
         statusText.innerText = "Saving...";
 
         try {
@@ -1083,35 +1087,30 @@ function addLinkField(name = '', url = '') {
             };
 
             if (editingDocId) {
-                // Update existing record
+                // Update
                 await db.collection('drive_pdfs').doc(editingDocId).update(recordData);
-                statusText.innerText = "Success! Record successfully update ho gaya hai.";
+                statusText.style.color = "#10b981";
+                statusText.innerText = "Success! Record update ho gaya.";
                 alert("PDF record update ho chuka hai!");
-                editingDocId = null;
-                
-                const saveBtn = document.querySelector('button[onclick="saveDrivePdfToDb()"]');
-                if(saveBtn) saveBtn.innerHTML = '<i class="fas fa-plus"></i> Add PDF Link';
             } else {
-                // Add new record
+                // Add
                 recordData.createdAt = new Date();
                 await db.collection('drive_pdfs').add(recordData);
-                statusText.innerText = "Success! Link successfully save ho gaya hai.";
+                statusText.style.color = "#10b981";
+                statusText.innerText = "Success! Link save ho gaya.";
                 alert("Naya PDF link add ho chuka hai!");
             }
 
-            // Clear inputs
-            document.getElementById('pdfTitleInput').value = "";
-            document.getElementById('pdfDriveLinkInput').value = "";
-            if(portalLinkField) portalLinkField.value = "https://epds.bihar.gov.in/SearchByRCID.aspx";
-            
+            cancelEdit();
             loadAdminDriveList();
+            setTimeout(() => { statusText.innerText = ""; }, 3000);
         } catch (error) {
+            statusText.style.color = "#ef4444";
             statusText.innerText = "Error saving link.";
             console.error(error);
         }
     }
 
-    // Edit function - form mein data load karna
     function editDrivePdf(docId, title, driveLink, portalLink) {
         editingDocId = docId;
         document.getElementById('pdfTitleInput').value = title;
@@ -1122,17 +1121,29 @@ function addLinkField(name = '', url = '') {
             portalLinkField.value = portalLink || "https://epds.bihar.gov.in/SearchByRCID.aspx";
         }
 
-        const saveBtn = document.querySelector('button[onclick="saveDrivePdfToDb()"]');
-        if(saveBtn) {
-            saveBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Update PDF Link';
-        }
+        document.getElementById('saveBtn').innerHTML = '<i class="fas fa-sync-alt"></i> Update PDF Link';
+        document.getElementById('cancelBtn').style.display = 'block';
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Delete function
+    function cancelEdit() {
+        editingDocId = null;
+        document.getElementById('pdfTitleInput').value = "";
+        document.getElementById('pdfDriveLinkInput').value = "";
+        
+        const portalLinkField = document.getElementById('pdfPortalLinkInput');
+        if(portalLinkField) {
+            portalLinkField.value = "https://epds.bihar.gov.in/SearchByRCID.aspx";
+        }
+
+        document.getElementById('saveBtn').innerHTML = '<i class="fas fa-plus"></i> Add PDF Link';
+        document.getElementById('cancelBtn').style.display = 'none';
+        document.getElementById('adminStatusText').innerText = "";
+    }
+
     async function deleteDrivePdf(docId) {
-        if (!confirm("Kya aap is link ko delete karna chahte hain?")) return;
+        if (!confirm("Kya aap sach mein is link ko delete karna chahte hain?")) return;
         try {
             await db.collection('drive_pdfs').doc(docId).delete();
             alert("Deleted successfully!");
@@ -1143,7 +1154,6 @@ function addLinkField(name = '', url = '') {
         }
     }
 
-    // Helper for escaping quotes
     function escapeHtml(str) {
         return str.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
     }
