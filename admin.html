@@ -474,35 +474,48 @@
 
 
 <div class="admin-pdf-card">
-    <h2><i class="fas fa-folder-plus mr-2" style="color: #4f46e5;"></i> Drive PDF Link Manager</h2>
-    <p>Yahan se aap nayi PDF ka naam aur uska Google Drive sharing link add kar sakte hain.</p>
-    
-    <!-- Input Form Fields -->
-    <div class="admin-form-group">
-        <label>PDF ka Naam (Title)</label>
-        <input type="text" id="pdfTitleInput" placeholder="Jaise: Bihar Ration Card List 2026">
-    </div>
-    
-    <div class="admin-form-group" style="margin-top: 12px;">
-        <label>Google Drive Share Link</label>
-        <input type="text" id="pdfDriveLinkInput" placeholder="https://drive.google.com/file/d/.../view">
-    </div>
-    
-    <button onclick="saveDrivePdfToDb()" class="admin-pdf-btn" style="margin-top: 16px;">
-        <i class="fas fa-plus"></i> Add PDF Link
-    </button>
-    
-    <p id="adminStatusText" class="admin-status-msg"></p>
+        <h2><i class="fas fa-folder-plus mr-2" style="color: #4f46e5;"></i> Drive PDF & Portal Link Manager</h2>
+        <p>Yahan se aap nayi PDF ka naam, uska link aur official EPDS portal link add, edit ya delete kar sakte hain.</p>
+        
+        <!-- Hidden input for tracking edit mode -->
+        <input type="hidden" id="editDocId">
 
-    <!-- Saved PDFs List -->
-    <div class="admin-list-section">
-        <h3>Saved Drive PDFs List:</h3>
-        <div id="adminDrivePdfList" class="admin-items-wrapper">
-            <!-- Dynamic list yahan aayegi -->
+        <!-- Input Form Fields -->
+        <div class="admin-form-group">
+            <label>PDF ka Naam (Title)</label>
+            <input type="text" id="pdfTitleInput" placeholder="Jaise: Pipra Ward 1 to 5">
+        </div>
+        
+        <div class="admin-form-group">
+            <label>PDF Direct / Drive Link</label>
+            <input type="text" id="pdfDriveLinkInput" placeholder="https://files.catbox.moe/... ya Drive link">
+        </div>
+
+        <div class="admin-form-group">
+            <label>Official EPDS Portal Link (Gaon ka link)</label>
+            <input type="text" id="pdfPortalLinkInput" placeholder="https://epds.bihar.gov.in/RCList_Village_Wise.aspx?..." value="https://epds.bihar.gov.in/SearchByRCID.aspx">
+        </div>
+        
+        <div class="flex gap-2" style="margin-top: 16px;">
+            <button onclick="saveDrivePdfToDb()" id="saveBtn" class="admin-pdf-btn">
+                <i class="fas fa-plus"></i> Add PDF Link
+            </button>
+            <button onclick="resetAdminForm()" id="cancelBtn" class="hidden bg-slate-500 hover:bg-slate-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition">
+                Cancel
+            </button>
+        </div>
+        
+        <p id="adminStatusText" class="admin-status-msg"></p>
+
+        <!-- Saved PDFs List -->
+        <div class="admin-list-section">
+            <h3>Saved Drive PDFs List:</h3>
+            <div id="adminDrivePdfList" class="admin-items-wrapper">
+                <!-- Dynamic list yahan aayegi -->
+                <p class="text-xs text-slate-400 text-center py-2">Loading records...</p>
+            </div>
         </div>
     </div>
-</div>
-
 
 
         <!-- PANEL 4: CONTROL SETTINGS -->
