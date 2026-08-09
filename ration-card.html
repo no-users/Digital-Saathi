@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ration Card</title>
+     <link rel="icon" type="image/png" href="Web_Icon.png">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-6 font-sans">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+        <!-- Header -->
+        <h1 class="text-2xl font-bold text-slate-800 mb-2"><i class="fas fa-search text-indigo-600 mr-2"></i> Search Ration Card </h1>
+        <p class="text-sm text-slate-500 mb-6">Ration number se ration card Dekhe  yahi se app pdf bhi downnload kr payeange. </p>
+
+        <!-- 1. Select PDF from Database -->
+        <div class="mb-6">
+            <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">1.Select Village </label>
+            <select id="pdfDropdown" onchange="loadSelectedPdf()" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-500 text-sm bg-white font-medium text-slate-700 cursor-pointer shadow-sm">
+                <option value="">Select</option>
+            </select>
+        </div>
+
+        <!-- 2. Search Input Section (Initially Hidden) -->
+        <div id="searchSection" class="mb-6 hidden">
+            <label class="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">2. Enter Ration Number</label>
+            <div class="flex gap-2">
+                <input type="text" id="searchInput" placeholder="Search text (102110112822295000001190)" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:border-indigo-500 text-sm shadow-sm">
+                <button onclick="executeSearch()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold text-sm transition shadow-lg shadow-indigo-200 shrink-0">
+                    <i class="fas fa-search mr-1"></i> Search
+                </button>
+            </div>
+        </div>
+
+        <!-- Status & Percentage Animation Bar -->
+        <div id="statusContainer" class="mb-6 hidden">
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl shadow-inner">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="statusText" class="text-xs font-bold text-indigo-600 flex items-center gap-2">
+                        <i class="fas fa-circle-notch fa-spin"></i> Initializing Document...
+                    </span>
+                    <span id="percentageText" class="text-xs font-black text-indigo-600 tracking-wider">0%</span>
+                </div>
+                <!-- Smooth Progress Bar -->
+                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                    <div id="progressBar" class="bg-indigo-600 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Display Box -->
+        <div id="resultsContainer" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBWyMJvt0OpejwkFEstI_NQToHmMBGwkbE",
+            authDomain: "agency-136b6.firebaseapp.com",
+            databaseURL: "https://agency-136b6-default-rtdb.firebaseio.com",
+            projectId: "agency-136b6",
+            storageBucket: "agency-136b6.firebasestorage.app",
+            messagingSenderId: "503663950718",
+            appId: "1:503663950718:web:8a30b18039c279ffac112f",
+            measurementId: "G-1K7QHDXKQ2"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        let activePdfTextData = [];
+        let currentPdfPortalLink = ""; // Dynamic portal link store karne ke liye
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const dropdown = document.getElementById('pdfDropdown');
+            try {
+                let snapshot = await db.collection('drive_pdfs').get();
+                if (snapshot.empty) {
+                    snapshot = await db.collection('pdfs').get();
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    let opt = document.createElement('option');
+                    opt.value = data.driveLink || data.link || data.url || ""; 
+                    // Database se portal link fetch karna, agar na ho toh default set rahega
+                    opt.dataset.portal = data.portalLink || data.portal || "https://epds.bihar.gov.in/SearchByRCID.aspx";
+                    opt.innerText = data.title || data.name || "Untitled";
+                    dropdown.appendChild(opt);
+                });
+            } catch (e) {
+                console.error("Error loading dropdown:", e);
+            }
+        });
+
+        async function loadSelectedPdf() {
+            const dropdown = document.getElementById('pdfDropdown');
+            const selectedOption = dropdown.options[dropdown.selectedIndex];
+            const fileUrl = selectedOption.value;
+            
+            // Jaise hi village/pdf select hoga, uska apna portal link yahan set ho jayega
+            currentPdfPortalLink = selectedOption.dataset.portal || "https://epds.bihar.gov.in/SearchByRCID.aspx";
+
+            const statusContainer = document.getElementById('statusContainer');
+            const statusText = document.getElementById('statusText');
+            const percentageText = document.getElementById('percentageText');
+            const progressBar = document.getElementById('progressBar');
+            const searchSection = document.getElementById('searchSection');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            resultsContainer.innerHTML = '';
+            activePdfTextData = [];
+
+            if (!fileUrl) {
+                searchSection.classList.add('hidden');
+                statusContainer.classList.add('hidden');
+                return;
+            }
+
+            statusContainer.classList.remove('hidden');
+            searchSection.classList.add('hidden');
+
+            function updateProgress(percent, message) {
+                percent = Math.min(Math.max(percent, 0), 100);
+                progressBar.style.width = percent + '%';
+                percentageText.innerText = Math.round(percent) + '%';
+                statusText.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> ${message}`;
+            }
+
+            try {
+                updateProgress(20, "Connecting to file link...");
+
+                const loadingTask = pdfjsLib.getDocument(fileUrl);
+                const pdfDoc = await loadingTask.promise;
+
+                const totalPages = pdfDoc.numPages;
+                updateProgress(40, `Total Pages found: ${totalPages}. Indexing shuru ho rahi hai...`);
+                
+                for (let i = 1; i <= totalPages; i++) {
+                    const page = await pdfDoc.getPage(i);
+                    const textContent = await page.getTextContent();
+                    
+                    let rowsMap = {};
+                    textContent.items.forEach(item => {
+                        let y = Math.round(item.transform[5] / 5) * 5;
+                        if (!rowsMap[y]) rowsMap[y] = [];
+                        rowsMap[y].push({ x: item.transform[4], str: item.str.trim() });
+                    });
+
+                    let pageRows = [];
+                    Object.keys(rowsMap).sort((a, b) => b - a).forEach(y => {
+                        let rowItems = rowsMap[y].sort((a, b) => a.x - b.x);
+                        let rowStrings = rowItems.map(i => i.str).filter(s => s.length > 0);
+                        if (rowStrings.length > 0) {
+                            pageRows.push(rowStrings);
+                        }
+                    });
+
+                    activePdfTextData.push({ pageNo: i, rows: pageRows });
+
+                    let currentProgress = 40 + ((i / totalPages) * 55);
+                    updateProgress(currentProgress, `Indexing page ${i} of ${totalPages}...`);
+                }
+
+                updateProgress(100, `Ready! Total Pages: ${totalPages}`);
+                
+                setTimeout(() => {
+                    statusContainer.classList.add('hidden');
+                    searchSection.classList.remove('hidden');
+                }, 400);
+
+            } catch (error) {
+                statusContainer.classList.add('hidden');
+                alert("Error: Link load nahi ho paya. Kripya ensure karein ki link bilkul sahi aur public hai.");
+                console.error(error);
+            }
+        }
+
+        function executeSearch() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '';
+
+            if (!query) {
+                alert("Kripya search text likhein!");
+                return;
+            }
+
+            let matches = [];
+
+            activePdfTextData.forEach(pageData => {
+                pageData.rows.forEach(row => {
+                    let fullRowText = row.join(" ").toLowerCase();
+                    
+                    if (fullRowText.includes(query)) {
+                        if (/^\d+$/.test(row[0]) && row.length >= 4) {
+                            
+                            let sNo = row[0];
+                            let cardNo = row.find(item => item.startsWith('102') || item.length > 15) || row[1] || 'N/A';
+                            let category = row.find(item => item === 'PHH' || item === 'AAY') || row[2] || 'N/A';
+                            
+                            let membersVal = row[row.length - 1];
+                            if (!/^\d+$/.test(membersVal) || parseInt(membersVal) > 20) {
+                                membersVal = row[row.length - 2] || '4';
+                            }
+
+                            let cleanedRow = row.filter(item => item !== sNo && item !== cardNo && item !== category && item !== membersVal);
+                            
+                            let mid = Math.floor(cleanedRow.length / 2);
+                            let nameVal = cleanedRow.slice(0, mid).join(" ") || 'N/A';
+                            let fatherVal = cleanedRow.slice(mid).join(" ") || 'N/A';
+
+                            matches.push({
+                                srNo: sNo,
+                                rationCardNo: cardNo,
+                                category: category,
+                                name: nameVal,
+                                husbandName: fatherVal,
+                                members: membersVal,
+                                pageNo: pageData.pageNo
+                            });
+                        }
+                    }
+                });
+            });
+
+            if (matches.length === 0) {
+                resultsContainer.innerHTML = `<div class="p-4 bg-red-50 text-red-600 rounded-xl text-center text-sm font-medium">"${query}" se milta julta koi valid member data nahi mila.</div>`;
+                return;
+            }
+
+            resultsContainer.innerHTML += `<p class="text-xs font-bold text-slate-500 mb-2">Total ${matches.length} matches mile hain:</p>`;
+
+           matches.forEach(match => {
+                const villagePortalLink = currentPdfPortalLink;
+                const directSearchLink = "https://epds.bihar.gov.in/SearchByRCID.aspx";
+
+                resultsContainer.innerHTML += `
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl shadow-sm mb-3">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
+                            <!-- Badges (Sr.No, Page, Card with Copy Button, Category) -->
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full">Sr.No: ${match.srNo}</span>
+                                <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">Page No: ${match.pageNo}</span>
+                                <div class="inline-flex items-center bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full gap-2">
+                                    <span>Ration Card: ${match.rationCardNo}</span>
+                                    <button onclick="navigator.clipboard.writeText('${match.rationCardNo}');  class="bg-blue-600 hover:bg-blue-700 text-white w-5 h-5 rounded-full flex items-center justify-center transition shadow-sm" title="Copy Ration Card Number">
+                                        <i class="fas fa-copy text-[10px]"></i>
+                                    </button>
+                                </div>
+                                <span class="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full">Category: ${match.category}</span>
+                            </div>
+                            <!-- Action Buttons Cleanly Aligned -->
+                            <div class="flex items-center gap-2 shrink-0">
+                                <a href="${villagePortalLink}" target="_blank" rel="noopener noreferrer"  class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5">
+                                    <i class="fas fa-external-link-alt"></i> Village List (P. ${match.pageNo})
+                                </a>
+                                <a href="${directSearchLink}" target="_blank" rel="noopener noreferrer" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5">
+                                    <i class="fas fa-search-dollar"></i> Direct Search RC
+                                </a>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-slate-700 pt-2 border-t border-slate-200/60">
+                            <p><b>Name:</b> ${match.name}</p>
+                            <p><b>Husband/Father:</b> ${match.husbandName}</p>
+                            <p><b>Total Members:</b> ${match.members}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
