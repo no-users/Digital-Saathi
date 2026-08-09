@@ -1018,8 +1018,10 @@ function addLinkField(name = '', url = '') {
 
 // ratin card ka pdf link add krne ke liye ye link banaya gaya hai 
 
-    // Page load hote hi admin list load karna
+ // Page load hote hi admin list load karna
     window.addEventListener('DOMContentLoaded', loadAdminDriveList);
+
+    let editingDocId = null; // Track karne ke liye ki abhi edit chal raha hai ya nahi
 
     async function loadAdminDriveList() {
         const listContainer = document.getElementById('adminDrivePdfList');
@@ -1036,13 +1038,19 @@ function addLinkField(name = '', url = '') {
 
             snapshot.forEach(doc => {
                 const data = doc.data();
+                const portalText = data.portalLink ? `<span class="text-emerald-600 truncate max-w-[200px] block">Portal: ${data.portalLink}</span>` : '';
+                
                 listContainer.innerHTML += `
-                    <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                        <div>
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs mb-2">
+                        <div class="overflow-hidden">
                             <span class="font-bold text-slate-800 block">${data.title}</span>
                             <span class="text-slate-400 truncate max-w-[200px] block">${data.driveLink}</span>
+                            ${portalText}
                         </div>
-                        <button onclick="deleteDrivePdf('${doc.id}')" class="bg-red-100 hover:bg-red-200 text-red-600 px-3 py-1 rounded-lg font-bold transition">Delete</button>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button onclick="editDrivePdf('${doc.id}', '${escapeHtml(data.title || '')}', '${escapeHtml(data.driveLink || '')}', '${escapeHtml(data.portalLink || '')}')" class="bg-amber-100 hover:bg-amber-200 text-amber-700 px-2.5 py-1 rounded-lg font-bold transition">Edit</button>
+                            <button onclick="deleteDrivePdf('${doc.id}')" class="bg-red-100 hover:bg-red-200 text-red-600 px-2.5 py-1 rounded-lg font-bold transition">Delete</button>
+                        </div>
                     </div>
                 `;
             });
@@ -1051,10 +1059,12 @@ function addLinkField(name = '', url = '') {
         }
     }
 
-    // Firestore database mein title aur link save karna
+    // Firestore database mein title, link aur portal link save ya update karna
     async function saveDrivePdfToDb() {
         const title = document.getElementById('pdfTitleInput').value.trim();
         const driveLink = document.getElementById('pdfDriveLinkInput').value.trim();
+        const portalLinkField = document.getElementById('pdfPortalLinkInput');
+        const portalLink = portalLinkField ? portalLinkField.value.trim() : "https://epds.bihar.gov.in/SearchByRCID.aspx";
         const statusText = document.getElementById('adminStatusText');
 
         if (!title || !driveLink) {
@@ -1065,21 +1075,59 @@ function addLinkField(name = '', url = '') {
         statusText.innerText = "Saving...";
 
         try {
-            await db.collection('drive_pdfs').add({
+            const recordData = {
                 title: title,
                 driveLink: driveLink,
-                createdAt: new Date()
-            });
+                portalLink: portalLink || "https://epds.bihar.gov.in/SearchByRCID.aspx",
+                updatedAt: new Date()
+            };
 
-            statusText.innerText = "Success! Link successfully save ho gaya hai.";
+            if (editingDocId) {
+                // Update existing record
+                await db.collection('drive_pdfs').doc(editingDocId).update(recordData);
+                statusText.innerText = "Success! Record successfully update ho gaya hai.";
+                alert("PDF record update ho chuka hai!");
+                editingDocId = null;
+                
+                const saveBtn = document.querySelector('button[onclick="saveDrivePdfToDb()"]');
+                if(saveBtn) saveBtn.innerHTML = '<i class="fas fa-plus"></i> Add PDF Link';
+            } else {
+                // Add new record
+                recordData.createdAt = new Date();
+                await db.collection('drive_pdfs').add(recordData);
+                statusText.innerText = "Success! Link successfully save ho gaya hai.";
+                alert("Naya PDF link add ho chuka hai!");
+            }
+
+            // Clear inputs
             document.getElementById('pdfTitleInput').value = "";
             document.getElementById('pdfDriveLinkInput').value = "";
+            if(portalLinkField) portalLinkField.value = "https://epds.bihar.gov.in/SearchByRCID.aspx";
+            
             loadAdminDriveList();
-            alert("Naya PDF link add ho chuka hai!");
         } catch (error) {
             statusText.innerText = "Error saving link.";
             console.error(error);
         }
+    }
+
+    // Edit function - form mein data load karna
+    function editDrivePdf(docId, title, driveLink, portalLink) {
+        editingDocId = docId;
+        document.getElementById('pdfTitleInput').value = title;
+        document.getElementById('pdfDriveLinkInput').value = driveLink;
+        
+        const portalLinkField = document.getElementById('pdfPortalLinkInput');
+        if(portalLinkField) {
+            portalLinkField.value = portalLink || "https://epds.bihar.gov.in/SearchByRCID.aspx";
+        }
+
+        const saveBtn = document.querySelector('button[onclick="saveDrivePdfToDb()"]');
+        if(saveBtn) {
+            saveBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Update PDF Link';
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // Delete function
@@ -1093,4 +1141,9 @@ function addLinkField(name = '', url = '') {
             alert("Error deleting.");
             console.error(error);
         }
+    }
+
+    // Helper for escaping quotes
+    function escapeHtml(str) {
+        return str.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
     }
