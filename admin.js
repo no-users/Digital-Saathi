@@ -1013,3 +1013,84 @@ function addLinkField(name = '', url = '') {
     `;
     container.appendChild(div);
 }
+
+
+
+// ratin card ka pdf link add krne ke liye ye link banaya gaya hai 
+
+    // Page load hote hi admin list load karna
+    window.addEventListener('DOMContentLoaded', loadAdminDriveList);
+
+    async function loadAdminDriveList() {
+        const listContainer = document.getElementById('adminDrivePdfList');
+        listContainer.innerHTML = '<p class="text-xs text-slate-400">Loading...</p>';
+
+        try {
+            const snapshot = await db.collection('drive_pdfs').get();
+            listContainer.innerHTML = '';
+            
+            if (snapshot.empty) {
+                listContainer.innerHTML = '<p class="text-xs text-slate-400">Koi bhi PDF link added nahi hai.</p>';
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                listContainer.innerHTML += `
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                        <div>
+                            <span class="font-bold text-slate-800 block">${data.title}</span>
+                            <span class="text-slate-400 truncate max-w-[200px] block">${data.driveLink}</span>
+                        </div>
+                        <button onclick="deleteDrivePdf('${doc.id}')" class="bg-red-100 hover:bg-red-200 text-red-600 px-3 py-1 rounded-lg font-bold transition">Delete</button>
+                    </div>
+                `;
+            });
+        } catch (e) {
+            console.error("Error:", e);
+        }
+    }
+
+    // Firestore database mein title aur link save karna
+    async function saveDrivePdfToDb() {
+        const title = document.getElementById('pdfTitleInput').value.trim();
+        const driveLink = document.getElementById('pdfDriveLinkInput').value.trim();
+        const statusText = document.getElementById('adminStatusText');
+
+        if (!title || !driveLink) {
+            alert("Kripya PDF ka naam aur link dono bharein!");
+            return;
+        }
+
+        statusText.innerText = "Saving...";
+
+        try {
+            await db.collection('drive_pdfs').add({
+                title: title,
+                driveLink: driveLink,
+                createdAt: new Date()
+            });
+
+            statusText.innerText = "Success! Link successfully save ho gaya hai.";
+            document.getElementById('pdfTitleInput').value = "";
+            document.getElementById('pdfDriveLinkInput').value = "";
+            loadAdminDriveList();
+            alert("Naya PDF link add ho chuka hai!");
+        } catch (error) {
+            statusText.innerText = "Error saving link.";
+            console.error(error);
+        }
+    }
+
+    // Delete function
+    async function deleteDrivePdf(docId) {
+        if (!confirm("Kya aap is link ko delete karna chahte hain?")) return;
+        try {
+            await db.collection('drive_pdfs').doc(docId).delete();
+            alert("Deleted successfully!");
+            loadAdminDriveList();
+        } catch (error) {
+            alert("Error deleting.");
+            console.error(error);
+        }
+    }
