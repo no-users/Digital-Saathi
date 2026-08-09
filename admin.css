@@ -790,19 +790,166 @@
 .premium-add-btn:active {
     transform: translateY(0);
 }
-body { background-color: #f1f5f9; font-family: sans-serif; padding: 24px; }
-        .admin-pdf-card { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); padding: 24px; }
-        .admin-pdf-card h2 { font-size: 1.25rem; font-weight: bold; color: #1e293b; margin-bottom: 4px; display: flex; align-items: center; }
-        .admin-pdf-card p { font-size: 0.8rem; color: #64748b; margin-bottom: 16px; }
-        .admin-form-group { margin-bottom: 12px; }
-        .admin-form-group label { display: block; font-size: 0.75rem; font-weight: bold; color: #475569; margin-bottom: 4px; text-transform: uppercase; }
-        .admin-form-group input { width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.85rem; outline: none; transition: border-color 0.2s; }
-        .admin-form-group input:focus { border-color: #4f46e5; }
-        .admin-pdf-btn { width: 100%; background: #4f46e5; color: white; border: none; padding: 11px; border-radius: 10px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .admin-pdf-btn:hover { background: #4338ca; }
-        .admin-status-msg { font-size: 0.75rem; font-weight: bold; margin-top: 8px; text-align: center; }
-        .admin-list-section { margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; }
-        .admin-list-section h3 { font-size: 0.9rem; font-weight: bold; color: #334155; margin-bottom: 12px; }
-        .admin-items-wrapper { display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto; padding-right: 4px; }
-        .admin-item-row { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-   
+/* ==========================================
+   Digital Saathi - Premium Admin & UI Styles
+   ================================---------- */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #f1f5f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 24px;
+    color: #1e293b;
+}
+
+/* Admin Card Container */
+.admin-pdf-card {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+    padding: 28px;
+    border: 1px solid #e2e8f0;
+}
+
+.admin-pdf-card h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-pdf-card > p {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+/* Form Groups */
+.admin-form-group {
+    margin-bottom: 16px;
+}
+
+.admin-form-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: #1e293b;
+    background-color: #f8fafc;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.admin-form-group input:focus {
+    border-color: #4f46e5;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+/* Action Buttons */
+.admin-pdf-btn {
+    background: #4f46e5;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+
+.admin-pdf-btn:hover {
+    background: #4338ca;
+    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.35);
+    transform: translateY(-1px);
+}
+
+.admin-pdf-btn:active {
+    transform: translateY(0);
+}
+
+/* Status Message */
+.admin-status-msg {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 12px;
+    text-align: center;
+    min-height: 20px;
+}
+
+/* Saved List Section */
+.admin-list-section {
+    margin-top: 28px;
+    border-top: 1.5px solid #e2e8f0;
+    padding-top: 20px;
+}
+
+.admin-list-section h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 14px;
+}
+
+.admin-items-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 380px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* Custom Scrollbar for the list */
+.admin-items-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+.admin-items-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+.admin-items-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+.admin-items-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    body {
+        padding: 12px;
+    }
+    .admin-pdf-card {
+        padding: 20px;
+    }
+}
