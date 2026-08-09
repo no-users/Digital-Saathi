@@ -473,38 +473,35 @@
 </div>
 
 
-
-     <div class="bg-white p-6 rounded-2xl shadow-md mt-6">
-    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fas fa-folder-plus text-indigo-600 mr-2"></i> Drive PDF Link Manager</h2>
-    <p class="text-xs text-slate-500 mb-4">Yahan se aap nayi PDF ka naam aur uska Google Drive sharing link add kar sakte hain.</p>
+<div class="admin-pdf-card">
+    <h2><i class="fas fa-folder-plus mr-2" style="color: #4f46e5;"></i> Drive PDF Link Manager</h2>
+    <p>Yahan se aap nayi PDF ka naam aur uska Google Drive sharing link add kar sakte hain.</p>
     
-    <!-- Input Form -->
-    <div class="space-y-3 mb-4">
-        <div>
-            <label class="block text-xs font-bold text-slate-600 mb-1">PDF ka Naam (Title)</label>
-            <input type="text" id="pdfTitleInput" placeholder="Jaise: Bihar Ration Card List 2026" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
-        </div>
-        <div>
-            <label class="block text-xs font-bold text-slate-600 mb-1">Google Drive Share Link</label>
-            <input type="text" id="pdfDriveLinkInput" placeholder="https://drive.google.com/file/d/.../view" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
-        </div>
+    <!-- Input Form Fields -->
+    <div class="admin-form-group">
+        <label>PDF ka Naam (Title)</label>
+        <input type="text" id="pdfTitleInput" placeholder="Jaise: Bihar Ration Card List 2026">
     </div>
     
-    <button onclick="saveDrivePdfToDb()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-lg shadow-indigo-200 transition">
-        <i class="fas fa-plus mr-1"></i> Add PDF Link
+    <div class="admin-form-group" style="margin-top: 12px;">
+        <label>Google Drive Share Link</label>
+        <input type="text" id="pdfDriveLinkInput" placeholder="https://drive.google.com/file/d/.../view">
+    </div>
+    
+    <button onclick="saveDrivePdfToDb()" class="admin-pdf-btn" style="margin-top: 16px;">
+        <i class="fas fa-plus"></i> Add PDF Link
     </button>
     
-    <p id="adminStatusText" class="text-xs font-medium text-indigo-600 mt-3"></p>
+    <p id="adminStatusText" class="admin-status-msg"></p>
 
     <!-- Saved PDFs List -->
-    <div class="mt-6 border-t pt-4">
-        <h3 class="text-sm font-bold text-slate-700 mb-3">Saved Drive PDFs List:</h3>
-        <div id="adminDrivePdfList" class="space-y-2 max-h-48 overflow-y-auto">
+    <div class="admin-list-section">
+        <h3>Saved Drive PDFs List:</h3>
+        <div id="adminDrivePdfList" class="admin-items-wrapper">
             <!-- Dynamic list yahan aayegi -->
         </div>
     </div>
 </div>
-
 
 
 
