@@ -557,7 +557,7 @@ function checkDeviceAndRedirect() {
 // 2. RECENT USED PORTALS LOGIC (LocalStorage)
 // ==========================================
 const RECENT_STORAGE_KEY = 'digital_saathi_recent_portals';
-const MAX_RECENT_ITEMS = 6;
+const MAX_RECENT_ITEMS = 3;
 
 function getRecentPortals() {
     try {
