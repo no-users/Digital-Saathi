@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital SaathIncome Declaration Form </title>
+    <title>Declaration Form </title>
     <link rel="icon" type="image/x-icon" href="Web_Icon.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -159,7 +159,12 @@
             <label>Mother's Name (माता का नाम)</label>
             <input type="text" id="in-mother" placeholder="Mother's Name" required>
         </div>
-        <div class="field-group full-span">
+        <!-- Husband Name / Pati ka Naam (Mother's Name ke theek baad) -->
+        <div class="field-group">
+            <label>Husband's Name (पति का नाम)</label>
+            <input type="text" id="in-hus-father" placeholder="Husband's Name">
+        </div>
+        <div class="field-group">
             <label>Age (उम्र - वर्षों में)</label>
             <input type="number" id="in-age" placeholder="e.g. 22" required>
         </div>
@@ -207,7 +212,7 @@
     <div class="a4-paper">
         <div class="doc-title">आय प्रमाण पत्र हेतु स्वयं शपथ-पत्र</div>
         <div class="doc-body">
-            मैं <b><span id="p-name"></span></b>, उम्र- <b><span id="p-age"></span></b> वर्ष, पिता <b><span id="p-father"></span></b>, माता <b><span id="p-mother"></span></b>, ग्राम <b><span id="p-village"></span></b>, पोस्ट <b><span id="p-po"></span></b>, थाना <b><span id="p-thana"></span></b>, जिला <b><span id="p-dist"></span></b>, राज्य बिहार का स्थायी निवासी हूँ, शपथ पूर्वक निम्नलिखित घोषणा करता/करती हूँ:- <br><br>
+            मैं <b><span id="p-name"></span></b>, पिता <b><span id="p-father"></span></b>, माता <b><span id="p-mother"></span></b>, <span id="span-hus-father" style="display:none;">पति <b><span id="p-hus-father"></span></b>, </span>उम्र- <b><span id="p-age"></span></b> वर्ष, ग्राम <b><span id="p-village"></span></b>, पोस्ट <b><span id="p-po"></span></b>, थाना <b><span id="p-thana"></span></b>, जिला <b><span id="p-dist"></span></b>, राज्य बिहार का स्थायी निवासी हूँ, शपथ पूर्वक निम्नलिखित घोषणा करता/करती हूँ:- <br><br>
             1. यह कि मैं उपरोक्त पते का वास्तविक एवं स्थायी निवासी हूँ।<br>
             2. यह कि मेरी सभी स्रोतों से कुल वार्षिक आय का विवरण निम्नवत है:<br>
             &nbsp;&nbsp;&nbsp;• कृषि से आय: ₹ <b><span id="p-agri"></span></b><br>
@@ -239,17 +244,34 @@
 
     <div class="float-nav">
         <button class="nav-btn" style="background:#f1f5f9; color:#475569;" onclick="back()">Edit Details</button>
-        <button id="print-btn" class="nav-btn" style="background:var(--text-dark); color:white;">Download / Print PDF</button>
+        <button id="print-btn" class="nav-btn" style="background:var(--text-dark); color:white;" onclick="printForm()">Download / Print PDF</button>
     </div>
 </div>
 
 <script>
-    // Hindi Transliteration Setup
+    // Google Transliteration Setup with Auto-Language Support
     google.load("elements", "1", { packages: "transliteration" });
     function init() {
         var options = { sourceLanguage: 'en', destinationLanguage: ['hi'], shortcutKey: 'ctrl+g', transliterationEnabled: true };
         var control = new google.elements.transliteration.TransliterationControl(options);
-        control.makeTransliteratable(["in-name", "in-father", "in-mother", "in-village", "in-po", "in-thana", "in-dist"]);
+        
+        var ids = ["in-name", "in-father", "in-mother", "in-hus-father", "in-age", "in-village", "in-po", "in-thana", "in-dist"];
+        control.makeTransliteratable(ids);
+
+        ids.forEach(function(id) {
+            var inputElement = document.getElementById(id);
+            if(inputElement) {
+                inputElement.addEventListener('input', function(e) {
+                    var text = e.target.value;
+                    var hasHindi = /[\u0900-\u097F]/.test(text);
+                    if (hasHindi) {
+                        control.disable();
+                    } else {
+                        control.enable();
+                    }
+                });
+            }
+        });
     }
     google.setOnLoadCallback(init);
 
@@ -336,11 +358,11 @@
         });
 
         if (!allFilled) {
-            alert("Kripya sabhi fields ko bharein (Please fill all required details)");
+            alert("Kripya sabhi required fields ko bharein (Please fill all required details)");
             return;
         }
 
-        const fieldKeys = ['name', 'father', 'mother', 'age', 'village', 'po', 'thana', 'dist', 'agri', 'biz', 'other'];
+        const fieldKeys = ['name', 'father', 'mother', 'hus-father', 'age', 'village', 'po', 'thana', 'dist', 'agri', 'biz', 'other'];
         
         fieldKeys.forEach(id => {
             const valElem = document.getElementById('in-' + id);
@@ -349,6 +371,18 @@
                 pElem.innerText = valElem.value;
             }
         });
+
+        // Husband Name conditional display logic
+        const husFatherVal = document.getElementById('in-hus-father').value.trim();
+        const husFatherSpan = document.getElementById('span-hus-father');
+        if (husFatherSpan) {
+            if (husFatherVal !== "") {
+                document.getElementById('p-hus-father').innerText = husFatherVal;
+                husFatherSpan.style.display = "inline";
+            } else {
+                husFatherSpan.style.display = "none";
+            }
+        }
 
         const today = new Date();
         const dd = String(today.getDate()).padStart(2, '0');
@@ -386,25 +420,20 @@
     }
 
     function resetForm() {
-        const inputs = document.querySelectorAll('#form-ui input'); // FIXED: 'The' changed to 'const'
+        const inputs = document.querySelectorAll('#form-ui input');
         inputs.forEach(input => {
             input.value = '';
             input.style.border = "1.5px solid #e2e8f0";
         });
     }
 
-    // Dynamic File Naming for Print / PDF
-document.getElementById('print-btn').addEventListener('click', function() {
-    // Input field se naam uthayenge aur pehla word (First Name) nikal lenge
-    let fullName = document.getElementById('in-name').value.trim();
-    let firstName = fullName ? fullName.split(' ')[0] : 'User';
-    
-    // Browser ka default print dialog kholne se pehle document ka title set kar dete hain
-    // Chrome/Edge "Save as PDF" karte waqt is title ko default filename bana leta hai
-    document.title = firstName + " Declaration Form";
-    
-    window.print();
-});
+    // Direct Print / Download Functionality Fixed
+    function printForm() {
+        let fullName = document.getElementById('in-name').value.trim();
+        let firstName = fullName ? fullName.split(' ')[0] : 'User';
+        document.title = firstName + " Declaration";
+        window.print();
+    }
 </script>
 
 </body>
